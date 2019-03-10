@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 import sys
 
 
-class OptionViewClass(QWidget):
+class OptionViewClass(QFrame):
     def __init__(self):
         super().__init__()
         self.setStyleSheet("margin:5px; border:1px solid rgb(0, 10, 10); ")
@@ -43,10 +43,10 @@ class OptionViewClass(QWidget):
         # self.ContentView.setCurrentIndex(0)
 
 
-class ContentViewClass(QWidget):
+class ContentViewClass(QFrame):
     def __init__(self):
         super().__init__()
-
+        self.setStyleSheet("margin:5px; border:1px solid rgb(0, 0, 255); ")
         self.initUI()
 
     def initUI(self):
@@ -58,7 +58,7 @@ class ContentViewClass(QWidget):
         self.setLayout(self.ContentView)
 
 
-class HookViewClass(QWidget):
+class HookViewClass(QFrame):
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -71,7 +71,7 @@ class HookViewClass(QWidget):
         self.HookView.addWidget(self.btn2)
         self.setLayout(self.HookView)
 
-class PcapViewClass(QWidget):
+class PcapViewClass(QFrame):
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -86,22 +86,20 @@ class PcapViewClass(QWidget):
         self.PcapView.addWidget(self.btn3)
         self.setLayout(self.PcapView)
 
-class MainViewClass(QWidget):
+class MainViewClass(QFrame):
     def __init__(self):
         super().__init__()
         self.setGeometry(300, 100, 1100, 600)
-        self.setStyleSheet("border:10px solid rgb(255, 10, 19); ")
+        self.setStyleSheet("margin:5px; border:5px solid rgb(255, 0, 0); ")
         self.initUI()
 
     def initUI(self):
         self.MainView = QGridLayout(self)
         self.VOption = OptionViewClass()
         self.VContent = ContentViewClass()
-        self.VContent.setStyleSheet("border:3px solid rgb(10, 10, 19); ")
         self.MainView.addWidget(self.VOption,0,0,0,1 )
         self.MainView.addWidget(self.VContent, 1,1,1,5)
         self.setLayout(self.MainView)
-        self.show()
 
 
 
@@ -109,6 +107,9 @@ class MainViewClass(QWidget):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     Main = MainViewClass()
+
+    Main.show()
+
     sys.exit(app.exec_())
 
 
