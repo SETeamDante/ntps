@@ -6,18 +6,22 @@ import sys
 
 
 class OptionViewClass(QFrame):
-    def __init__(self):
+    def __init__(self, ContentView):
         super().__init__()
+        self.ContentView = ContentView
+        self.setWindowTitle("Option")
         self.setStyleSheet("margin:5px; border:1px solid rgb(0, 10, 10); ")
         self.initUI()
         # ContentView  = ContentViewClass()
 
     def initUI(self):
         self.OptionView = QVBoxLayout(self)
+        # self.txt = QLabel("Option")
         self.btn = QPushButton("Hook")
         self.btn2 = QPushButton("Hook Collection")
         self.btn3 = QPushButton("LivePacket")
         self.btn4 = QPushButton("Pcap")
+        # self.OptionView.addWidget(self.txt,Qt.AlignTop)
         self.OptionView.addWidget(self.btn)
         self.OptionView.addWidget(self.btn2)
         self.OptionView.addWidget(self.btn3)
@@ -31,31 +35,34 @@ class OptionViewClass(QFrame):
         self.btn2.clicked.connect(self.on_click2)
         self.setLayout(self.OptionView)
 
-
     @pyqtSlot()
     def on_click(self):
         print('PyQt5 button click')
-        # self.ContentView.setCurrentIndex(1)
+        self.ContentView.setCurrentIndex(1)
 
     @pyqtSlot()
     def on_click2(self):
         print('PyQt5 button click')
-        # self.ContentView.setCurrentIndex(0)
+        self.ContentView.setCurrentIndex(0)
 
 
-class ContentViewClass(QFrame):
+class ContentViewClass(QWidget):
+    ContentView = QStackedLayout()
     def __init__(self):
         super().__init__()
+        self.setWindowTitle("Content")
         self.setStyleSheet("margin:5px; border:1px solid rgb(0, 0, 255); ")
+
+        self.VHook = HookViewClass()
+        self.VPcap = PcapViewClass()
         self.initUI()
 
     def initUI(self):
-        self.ContentView = QStackedLayout()
-        self.VHook = HookViewClass()
-        self.VPcap = PcapViewClass()
+
         self.ContentView.addWidget(self.VHook)
         self.ContentView.addWidget(self.VPcap)
         self.setLayout(self.ContentView)
+
 
 
 class HookViewClass(QFrame):
@@ -90,13 +97,14 @@ class MainViewClass(QFrame):
     def __init__(self):
         super().__init__()
         self.setGeometry(300, 100, 1100, 600)
+        self.setWindowTitle("Main")
         self.setStyleSheet("margin:5px; border:5px solid rgb(255, 0, 0); ")
         self.initUI()
 
     def initUI(self):
         self.MainView = QGridLayout(self)
-        self.VOption = OptionViewClass()
         self.VContent = ContentViewClass()
+        self.VOption = OptionViewClass(self.VContent.ContentView)
         self.MainView.addWidget(self.VOption,0,0,0,1 )
         self.MainView.addWidget(self.VContent, 1,1,1,5)
         self.setLayout(self.MainView)
@@ -109,7 +117,6 @@ if __name__ == '__main__':
     Main = MainViewClass()
 
     Main.show()
-
     sys.exit(app.exec_())
 
 
