@@ -8,182 +8,142 @@ import sys
 class OptionViewClass(QFrame):
     def __init__(self, ContentView):
         super().__init__()
+        #Pass reference of the ContentViewClass ContentView Layer
         self.ContentView = ContentView
-        self.setWindowTitle("Option")
+        # Add a style to MainView (TO BE CHANGE)
+        # TODO
         self.setStyleSheet("margin:5px; border:1px solid rgb(0, 10, 10); ")
         self.initUI()
         # ContentView  = ContentViewClass()
 
     def initUI(self):
+        #Creates a new Vertical BoxLayout
         self.OptionView = QVBoxLayout(self)
-        # self.txt = QLabel("Option")
+        # Creates 4 Button Widget while also setting the label
         self.btn = QPushButton("Hook")
         self.btn2 = QPushButton("Hook Collection")
         self.btn3 = QPushButton("LivePacket")
         self.btn4 = QPushButton("Pcap")
-        # self.OptionView.addWidget(self.txt,Qt.AlignTop)
+        #Adds 4 button QWidgets to OptionView(BoxLayout)
         self.OptionView.addWidget(self.btn)
         self.OptionView.addWidget(self.btn2)
         self.OptionView.addWidget(self.btn3)
         self.OptionView.addWidget(self.btn4)
-        self.Combo = QButtonGroup()
-        self.Combo.addButton(self.btn)
-        self.Combo.addButton(self.btn2)
-        self.Combo.addButton(self.btn3)
-        self.Combo.addButton(self.btn4)
-        self.btn.clicked.connect(self.on_click)
-        self.btn2.clicked.connect(self.on_click2)
+        #Connects a button with a function
+        #-clicked.connect can only pass function calls and no primitives
+        #-so we are using lambda to mask the arguments as a Call
+        self.btn.clicked.connect(lambda : self.on_click(0))
+        self.btn2.clicked.connect(lambda :self.on_click(1))
+        self.btn3.clicked.connect(lambda :self.on_click(2))
+        self.btn4.clicked.connect(lambda :self.on_click(3))
         self.setLayout(self.OptionView)
 
     @pyqtSlot()
-    def on_click(self):
+    def on_click(self, number):
         print('PyQt5 button click')
-        self.ContentView.setCurrentIndex(1)
+        #Debbuging purposes
+        print(number)
+        #Changes the current index of a StackedLayout
+        self.ContentView.setCurrentIndex(number)
 
-    @pyqtSlot()
-    def on_click2(self):
-        print('PyQt5 button click')
-        self.ContentView.setCurrentIndex(0)
 
 
 class ContentViewClass(QWidget):
-    ContentView = QStackedLayout()
+
     def __init__(self):
+        #Create a new StackedLayout
+        self.ContentView = QStackedLayout()
         super().__init__()
         self.setWindowTitle("Content")
+        #Add a style to ContentViewClass (TO BE CHANGE)
+        #TODO
         self.setStyleSheet("margin:5px; border:1px solid rgb(0, 0, 255); ")
-
+        # Awakens and stores location of HookViewClass
         self.VHook = HookViewClass()
+        # Awakens and stores location of PcapViewClass
         self.VPcap = PcapViewClass()
+        #Calls function to begging making the view
         self.initUI()
 
     def initUI(self):
 
+        #Add QFrame( Or QWidget) to ContentView(StackLayout) in a Queue form
         self.ContentView.addWidget(self.VHook)
         self.ContentView.addWidget(self.VPcap)
+        # Inject ContentView Layout to the QFrame ( or QWidget)
         self.setLayout(self.ContentView)
 
 
-
+#TODO
 class HookViewClass(QFrame):
     def __init__(self):
         super().__init__()
+        #Calls function to begging making the view
         self.initUI()
 
     def initUI(self):
+        #Creates a vertical Box Layout
         self.HookView = QVBoxLayout(self)
+        # Creates 2 Button Widget while also setting the label
         self.btn = QPushButton("Hook")
         self.btn2 = QPushButton("Hook Collection")
+        # Adds widgets to PcapView( a vertical Box Layout) in Queue form
         self.HookView.addWidget(self.btn)
         self.HookView.addWidget(self.btn2)
+        # Inject PcapView Layout to the QFrame ( or QWidget)
         self.setLayout(self.HookView)
 
+#TODO
 class PcapViewClass(QFrame):
     def __init__(self):
         super().__init__()
+        #Calls function to begging making the view
         self.initUI()
 
     def initUI(self):
+        #Creates a vertical Box Layout
         self.PcapView = QVBoxLayout()
+        #Creates 3 Button Widget while also setting the label
         self.btn = QPushButton("Hook")
         self.btn2 = QPushButton("Hook Collection")
         self.btn3 = QPushButton("Pcap")
+        #Adds widgets to PcapView( a vertical Box Layout) in Queue form
         self.PcapView.addWidget(self.btn)
         self.PcapView.addWidget(self.btn2)
         self.PcapView.addWidget(self.btn3)
+        # Inject PcapView Layout to the Qframe ( or QWidget)
         self.setLayout(self.PcapView)
 
 class MainViewClass(QFrame):
     def __init__(self):
         super().__init__()
+        #Set the Main window size ::: setGreometry(Location X, Location Y, Size X, Size Y)
         self.setGeometry(300, 100, 1100, 600)
-        self.setWindowTitle("Main")
+        self.setWindowTitle("Network Traffic Protocol System")
+        #Add a style to MainView (TO BE CHANGE)
+        #TODO
         self.setStyleSheet("margin:5px; border:5px solid rgb(255, 0, 0); ")
+        #Calls function to begging making the view
         self.initUI()
 
     def initUI(self):
+        #Start GridLayout
         self.MainView = QGridLayout(self)
+        # Initialize and stores location of ContentViewClass
         self.VContent = ContentViewClass()
+        # Initialize and stores location of OptionViewClass while also sending ContentView layout information
         self.VOption = OptionViewClass(self.VContent.ContentView)
+        #Adds widget(or frame) in a GridLayout ::: .addWidget(Qwidget or QFrame ,X ,Y ,SizeX ,SizeY):::X and Y start
+        #top right
         self.MainView.addWidget(self.VOption,0,0,0,1 )
         self.MainView.addWidget(self.VContent, 1,1,1,5)
+        #Inject MainView Layout to the Qframe ( or QWidget)
         self.setLayout(self.MainView)
-
-
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     Main = MainViewClass()
-
+    #Displays the MainView QFrame
     Main.show()
+    #app.exec is necessary to keep the window open even after execution
     sys.exit(app.exec_())
-
-
-# #Here we begin
-# app = QApplication([])
-# window = QWidget()
-# window.setGeometry(300,100,1100,600)
-# # window.resize(100,100)
-# # window.showFullScreen()
-#
-#
-#
-# # window3 = QWidget()
-# # OptionView3 = QVBoxLayout()
-# # btn = QPushButton("Hook")
-# # OptionView3.addWidget(btn)
-# # btn2 = QPushButton("Hook Collection")
-# # OptionView3.addWidget(btn2)
-# # btn3 = QPushButton("LivePacket")
-# # OptionView3.addWidget(btn3)
-# # btn4 = QPushButton("Pcap")
-# # OptionView3.addWidget(btn4)
-# # Combo = QButtonGroup()
-# # Combo.addButton(btn)
-# # Combo.addButton(btn2)
-# # Combo.addButton(btn3)
-# # Combo.addButton(btn4)
-#
-# # btn.clicked.connect(on_click)
-# # btn2.clicked.connect(on_click2)
-#
-# # window3.setStyleSheet("border:3px solid rgb(255, 0, 0); ")
-# # window3.setLayout(OptionView3)
-#
-# # layout = QGridLayout()
-# #
-# # window2 = QWidget()
-# # OptionView2 = QStackedLayout()
-#
-#
-# window4 = QWidget()
-# OptionView4 = QVBoxLayout()
-# OptionView4.addWidget(QPushButton("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"))
-# OptionView4.addWidget(QPushButton("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa"))
-# OptionView4.addWidget(QPushButton("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"))
-# window4.setLayout(OptionView4)
-#
-# window5 = QWidget()
-# OptionView5 = QVBoxLayout()
-# OptionView5.addWidget(QPushButton("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"))
-# OptionView5.addWidget(QPushButton("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"))
-# OptionView5.addWidget(QPushButton("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"))
-# window5.setLayout(OptionView5)
-#
-# OptionView2.addWidget(window4)
-# OptionView2.addWidget(window5)
-#
-# window2.setStyleSheet("margin:5px; border:1px solid rgb(0, 10, 10); ")
-# window2.setLayout(OptionView2)
-#
-# layout.addWidget(window2,1,1,1,5)
-# layout.addWidget(window3,0,0,0,1)
-#
-# window.setLayout(layout)
-#
-# window.show()
-# app.exec_()
-
-
-
