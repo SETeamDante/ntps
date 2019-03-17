@@ -1,8 +1,11 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+from PyQt5 import  QtGui
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 import sys
+import PCAPView
+from PCAPView import *
+
 
 
 class OptionViewClass(QFrame):
@@ -49,7 +52,6 @@ class OptionViewClass(QFrame):
 
 
 class ContentViewClass(QWidget):
-
     def __init__(self):
         #Create a new StackedLayout
         self.ContentView = QStackedLayout()
@@ -57,62 +59,126 @@ class ContentViewClass(QWidget):
         self.setWindowTitle("Content")
         #Add a style to ContentViewClass (TO BE CHANGE)
         #TODO
-        self.setStyleSheet("margin:5px; border:1px solid rgb(0, 0, 255); ")
-        # Awakens and stores location of HookViewClass
-        self.VHook = HookViewClass()
+        # self.setStyleSheet("margin:1px; border:1px solid rgb(0, 0, 255); ")
+        # Awakens and stores location of HookCollectionViewClass
+        self.VHookCollection = HookCollectionViewClass()
         # Awakens and stores location of PcapViewClass
         self.VPcap = PcapViewClass()
+        self.VHook = HookViewClass()
         #Calls function to begging making the view
         self.initUI()
 
     def initUI(self):
 
         #Add QFrame( Or QWidget) to ContentView(StackLayout) in a Queue form
+        self.ContentView.addWidget(self.VHookCollection)
         self.ContentView.addWidget(self.VHook)
         self.ContentView.addWidget(self.VPcap)
         # Inject ContentView Layout to the QFrame ( or QWidget)
         self.setLayout(self.ContentView)
 
 
-#TODO
-class HookViewClass(QFrame):
+class HookCollectionViewClass(QWidget):
     def __init__(self):
         super().__init__()
         #Calls function to begging making the view
+        self.setStyleSheet('QWidget { font: 20px }')
+        self.HookCollectionView = QGridLayout(self)
         self.initUI()
 
     def initUI(self):
-        #Creates a vertical Box Layout
-        self.HookView = QVBoxLayout(self)
-        # Creates 2 Button Widget while also setting the label
-        self.btn = QPushButton("Hook")
-        self.btn2 = QPushButton("Hook Collection")
-        # Adds widgets to PcapView( a vertical Box Layout) in Queue form
-        self.HookView.addWidget(self.btn)
-        self.HookView.addWidget(self.btn2)
-        # Inject PcapView Layout to the QFrame ( or QWidget)
+        # --------------------------
+
+        self.addHookButton = QPushButton("+Hook")
+        self.editHookButton = QPushButton("Edit")
+        self.deleteHookButton = QPushButton("Delete")
+        self.searchLabel = QLabel("Search")
+        self.searchBox = QLineEdit()
+
+        self.layout = QGridLayout()
+        self.layout.addWidget(self.addHookButton, 1, 0)
+        self.layout.addWidget(self.editHookButton, 1, 1)
+        self.layout.addWidget(self.deleteHookButton, 1, 2)
+        self.layout.setColumnMinimumWidth(4, 100)
+        self.layout.addWidget(self.searchLabel, 1, 5)
+        self.layout.addWidget(self.searchBox, 1, 6)
+
+        # ---------------
+
+        self.HookCollectionPropertiesArea = QTreeWidget(self)
+        self.HookCollectionPropertiesArea.setSelectionMode(QAbstractItemView.NoSelection)
+        self.HookCollectionPropertiesArea.setAlternatingRowColors(True)
+        self.HookCollectionPropertiesArea.setFixedWidth(700)
+        self.labels = ["Hook ", "Description", "Hook status", "Hook Execution Sequence"]
+        self.HookCollectionPropertiesArea.setHeaderLabels(self.labels)
+        self.test = QTreeWidgetItem(["Hook1", "Description","Enable","1"])
+        self.test2 = QTreeWidgetItem(["Hook2", "Description","Enable","2"])
+        self.HookCollectionPropertiesArea.addTopLevelItem(self.test)
+        self.HookCollectionPropertiesArea.addTopLevelItem(self.test2)
+        self.test.addChild(self.test2)
+        # -------------------------------
+        self.HookCollectionPropertiesArea5 = QTreeWidget(self)
+        self.HookCollectionPropertiesArea5.setHeaderLabels(["Hook Collection", "No. of Hooks", "Hook Collection status", "Hook Collection Execution Sequence"])
+        self.HookCollectionPropertiesArea5.setAlternatingRowColors(True)
+        self.HookCollectionPropertiesArea5.setSelectionMode(QAbstractItemView.NoSelection)
+        self.HookCollectionPropertiesArea5.setFixedWidth(1000)
+        self.test5 = QTreeWidgetItem(["Hook Collection 1", "2","Enable","1"])
+        self.test55 = QTreeWidgetItem()
+        self.HookCollectionPropertiesArea5.addTopLevelItem(self.test5)
+        self.test5.addChild(self.test55)
+        self.HookCollectionPropertiesArea5.setItemWidget(self.test55, 0, self.HookCollectionPropertiesArea)
+        # -------------------------------
+        self.HookCollectionView.addWidget(self.HookCollectionPropertiesArea5, 1, 0, 1, 1)
+        self.HookCollectionView.addLayout(self.layout, 0, 0, 1, 1)
+        self.setLayout(self.HookCollectionView)
+
+class HookViewClass(QWidget):
+    def __init__(self):
+        super().__init__()        #Calls function to begging making the view
+        self.setStyleSheet('QWidget { font: 20px }')
+        self.HookView = QGridLayout(self)
+        self.initUI()
+
+    def initUI(self):
+        # --------------------------
+
+        self.addHookButton = QPushButton("+Hook")
+        self.editHookButton = QPushButton("Edit")
+        self.deleteHookButton = QPushButton("Delete")
+        self.searchLabel = QLabel("Search")
+        self.searchBox = QLineEdit()
+
+        self.layout = QGridLayout()
+        self.layout.addWidget(self.addHookButton, 1, 0)
+        self.layout.addWidget(self.editHookButton, 1, 1)
+        self.layout.addWidget(self.deleteHookButton, 1, 2)
+        self.layout.setColumnMinimumWidth(4, 100)
+        self.layout.addWidget(self.searchLabel, 1, 5)
+        self.layout.addWidget(self.searchBox, 1, 6)
+
+        # ---------------
+
+        self.HookPropertiesArea5 = QTreeWidget(self)
+        # self.HookPropertiesArea5.setStyleSheet('QWidget { font: 29px }')
+        self.HookPropertiesArea5.setHeaderLabels(["Hook", 'Description', 'Association to Hook Collection'])
+        self.HookPropertiesArea5.setAlternatingRowColors(True)
+
+        self.HookPropertiesArea5.setFixedWidth(1000)
+        self.HookPropertiesArea5.resizeColumnToContents(1)
+
+
+        # # Adds widgets to PcapView( a vertical Box Layout) in Queue form
+        self.test5 = QTreeWidgetItem(["Hook1", "Description_of_Hook", "0"])
+        self.test55 = QTreeWidgetItem()
+        self.HookPropertiesArea5.addTopLevelItem(self.test5)
+        # self.HookPropertiesArea5.setItemWidget(self.test5, 0, self.btn5)
+
+        self.HookView.addWidget(self.HookPropertiesArea5, 1, 0, 1, 1)
+        self.HookView.addLayout(self.layout, 0, 0, 1, 1)
+
+
+        self.HookPropertiesArea5.adjustSize()
         self.setLayout(self.HookView)
-
-#TODO
-class PcapViewClass(QFrame):
-    def __init__(self):
-        super().__init__()
-        #Calls function to begging making the view
-        self.initUI()
-
-    def initUI(self):
-        #Creates a vertical Box Layout
-        self.PcapView = QVBoxLayout()
-        #Creates 3 Button Widget while also setting the label
-        self.btn = QPushButton("Hook")
-        self.btn2 = QPushButton("Hook Collection")
-        self.btn3 = QPushButton("Pcap")
-        #Adds widgets to PcapView( a vertical Box Layout) in Queue form
-        self.PcapView.addWidget(self.btn)
-        self.PcapView.addWidget(self.btn2)
-        self.PcapView.addWidget(self.btn3)
-        # Inject PcapView Layout to the Qframe ( or QWidget)
-        self.setLayout(self.PcapView)
 
 class MainViewClass(QFrame):
     def __init__(self):
@@ -122,7 +188,7 @@ class MainViewClass(QFrame):
         self.setWindowTitle("Network Traffic Protocol System")
         #Add a style to MainView (TO BE CHANGE)
         #TODO
-        self.setStyleSheet("margin:5px; border:5px solid rgb(255, 0, 0); ")
+        # self.setStyleSheet("margin:5px; border:5px solid rgb(255, 0, 0); ")
         #Calls function to begging making the view
         self.initUI()
 
@@ -142,6 +208,7 @@ class MainViewClass(QFrame):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    app.setStyle('Fusion')
     Main = MainViewClass()
     #Displays the MainView QFrame
     Main.show()
