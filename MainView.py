@@ -66,7 +66,7 @@ class ContentViewClass(QWidget):
         # Awakens and stores location of PcapViewClass
         self.VPcap = PcapViewClass()
         self.VHook = HookViewClass()
-        self.VPacket = PacketView()
+        self.VPacket = LivePacketView()
         #Calls function to begging making the view
         self.initUI()
 
