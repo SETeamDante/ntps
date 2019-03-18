@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 import sys
 import PCAPView
 from PCAPView import *
+from  PacketView import *
 
 
 
@@ -65,6 +66,7 @@ class ContentViewClass(QWidget):
         # Awakens and stores location of PcapViewClass
         self.VPcap = PcapViewClass()
         self.VHook = HookViewClass()
+        self.VPacket = PacketView()
         #Calls function to begging making the view
         self.initUI()
 
@@ -73,6 +75,7 @@ class ContentViewClass(QWidget):
         #Add QFrame( Or QWidget) to ContentView(StackLayout) in a Queue form
         self.ContentView.addWidget(self.VHookCollection)
         self.ContentView.addWidget(self.VHook)
+        self.ContentView.addWidget(self.VPacket)
         self.ContentView.addWidget(self.VPcap)
         # Inject ContentView Layout to the QFrame ( or QWidget)
         self.setLayout(self.ContentView)
