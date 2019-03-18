@@ -2,13 +2,14 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import (QApplication, QCheckBox, QComboBox, QDateTimeEdit,
-        QDial, QDialog, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLineEdit,
-        QProgressBar, QPushButton, QRadioButton, QScrollBar, QSizePolicy,
-        QSlider, QSpinBox, QStyleFactory, QTableWidget, QTabWidget, QTextEdit,
-        QVBoxLayout, QWidget)
+                             QDial, QDialog, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLineEdit,
+                             QProgressBar, QPushButton, QRadioButton, QScrollBar, QSizePolicy,
+                             QSlider, QSpinBox, QStyleFactory, QTableWidget, QTabWidget, QTextEdit,
+                             QVBoxLayout, QWidget)
 import sys
 
-#Helper class to make tree elements radio buttons
+
+# Helper class to make tree elements radio buttons
 class Delegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         if not index.parent().isValid():
@@ -34,7 +35,8 @@ class Delegate(QStyledItemDelegate):
                             model.setData(ix, Qt.Unchecked, Qt.CheckStateRole)
         return value
 
-#PCAP View is set with this class
+
+# PCAP View is set with this class
 class PcapViewClass(QFrame):
     def __init__(self, parent=None):
         super(PcapViewClass, self).__init__(parent)
@@ -46,8 +48,8 @@ class PcapViewClass(QFrame):
         self.createPacketArea()
         self.createPlusMinusButtons()
         self.createFuzzingArea()
-        
-        #Placeholder to keep the size of the Packet Area
+
+        # Placeholder to keep the size of the Packet Area
         self.test = QGroupBox()
         testButton1 = QPushButton("")
         testButton1.setFlat(True)
@@ -69,25 +71,24 @@ class PcapViewClass(QFrame):
         testlayout.addWidget(testButton5)
         testlayout.addWidget(testButton6)
         self.test.setLayout(testlayout)
-        
 
         mainLayout = QGridLayout()
         mainLayout.addWidget(self.PCAPFileArea, 0, 0, 1, 11)
         mainLayout.addWidget(self.captureFilterArea, 1, 0, 1, 11)
         mainLayout.addWidget(self.test, 2, 0, 1, 11)
         mainLayout.addWidget(self.packetArea, 2, 0, 1, 11)
-        
+
         mainLayout.addWidget(self.fieldArea, 3, 0, 1, 6)
         mainLayout.addWidget(self.PlusMinus, 3, 6, 1, 1)
         mainLayout.addWidget(self.fuzzingArea, 3, 7, 1, 4)
         mainLayout.setRowStretch(2, 1)
         mainLayout.setRowStretch(3, 1)
-        
+
         self.setLayout(mainLayout)
 
         self.setWindowTitle("Packet from PCAP View")
 
-#PCAP File Area defined here
+    # PCAP File Area defined here
     def createPCAPFileArea(self):
         self.PCAPFileArea = QGroupBox("PCAP File")
 
@@ -95,8 +96,8 @@ class PcapViewClass(QFrame):
         PCAPFileEdit = QLineEdit()
         PCAPFileEdit.setPlaceholderText('PCAP File Path')
         PCAPFileLabel.setBuddy(PCAPFileEdit)
-        
-        #Open and Cancel buttons are set here
+
+        # Open and Cancel buttons are set here
         PCAPFileOpenButton = QPushButton("Open")
         PCAPFileOpenButton.setDefault(False)
         PCAPFileCancelButton = QPushButton("Cancel")
@@ -107,9 +108,9 @@ class PcapViewClass(QFrame):
         layout.addWidget(PCAPFileEdit)
         layout.addWidget(PCAPFileOpenButton)
         layout.addWidget(PCAPFileCancelButton)
-        self.PCAPFileArea.setLayout(layout) 
-     
-#Capture Filter Area defined here
+        self.PCAPFileArea.setLayout(layout)
+
+    # Capture Filter Area defined here
     def createCaptureFilterArea(self):
         self.captureFilterArea = QGroupBox("Capture Filter")
 
@@ -117,8 +118,8 @@ class PcapViewClass(QFrame):
         CaptureFilterEdit = QLineEdit()
         CaptureFilterEdit.setPlaceholderText('Filter Expression')
         CaptureFilterLabel.setBuddy(CaptureFilterEdit)
-        
-        #Apply and Clear buttons are set here
+
+        # Apply and Clear buttons are set here
         CaptureFilterApplyButton = QPushButton("Apply")
         CaptureFilterApplyButton.setDefault(False)
         CaptureFilterClearButton = QPushButton("Clear")
@@ -129,13 +130,13 @@ class PcapViewClass(QFrame):
         layout.addWidget(CaptureFilterEdit)
         layout.addWidget(CaptureFilterApplyButton)
         layout.addWidget(CaptureFilterClearButton)
-        self.captureFilterArea.setLayout(layout) 
-        
-#Plus Minus Buttons defined here
+        self.captureFilterArea.setLayout(layout)
+
+    # Plus Minus Buttons defined here
     def createPlusMinusButtons(self):
         self.PlusMinus = QGroupBox("")
-        
-        #Buttons are set here
+
+        # Buttons are set here
         plusButton = QToolButton()
         plusButton.setArrowType(Qt.RightArrow)
         minusButton = QToolButton()
@@ -144,9 +145,9 @@ class PcapViewClass(QFrame):
         layout = QVBoxLayout()
         layout.addWidget(plusButton, 0, Qt.AlignCenter)
         layout.addWidget(minusButton, 0, Qt.AlignCenter)
-        self.PlusMinus.setLayout(layout)         
+        self.PlusMinus.setLayout(layout)
 
-#Field Area defined here
+    # Field Area defined here
     def createFieldArea(self):
         self.fieldArea = QGroupBox("Field Area")
 
@@ -156,7 +157,7 @@ class PcapViewClass(QFrame):
         fieldNameCheckBox3 = QCheckBox("icmp.checksum")
         fieldNameCheckBox4 = QCheckBox("icmp.ident")
         fieldNameCheckBox5 = QCheckBox("icmp.seq")
-        
+
         valueLabel = QLabel("Value")
         valueText1 = QTextEdit()
         valueText1.setPlainText("08")
@@ -168,7 +169,7 @@ class PcapViewClass(QFrame):
         valueText4.setPlainText("809e")
         valueText5 = QTextEdit()
         valueText5.setPlainText("0f00")
-        
+
         maskLabel = QLabel("Mask")
         maskText1 = QTextEdit()
         maskText1.setPlainText("0")
@@ -180,7 +181,7 @@ class PcapViewClass(QFrame):
         maskText4.setPlainText("0")
         maskText5 = QTextEdit()
         maskText5.setPlainText("2")
-        
+
         displayFormatLabel = QLabel("Display Format")
         displayFormats = ["Binary", "Hex", "Dissected"]
         displayFormatCBox1 = QComboBox()
@@ -221,18 +222,18 @@ class PcapViewClass(QFrame):
         layout.addWidget(displayFormatCBox5, 5, 3)
         self.fieldArea.setLayout(layout)
 
-#Packet Area defined here
+    # Packet Area defined here
     def createPacketArea(self):
         self.packetArea = QGroupBox("Packet Area")
         PacketAreaTabWidget = QTabWidget()
         PacketAreaTabWidget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Ignored)
-        #Dissected Tab Formatting
+        # Dissected Tab Formatting
         PacketAreaDissectedTab = QWidget()
         DissectedTabHBox = QHBoxLayout()
         DissectedTabTree = QTreeWidget()
         DissectedTabTree.setHeaderLabels([''])
         DissectedTabTree.setItemDelegate(Delegate())
-        
+
         children = ["Frame XXX: 74 bytes on wire (592 bits), 74 bytes captured (592 bits) on interface 0",
                     "Ethernet II, Src: Elitegro_dd:12:cd (00:19:21:dd:12:cd), Dst: Broadcom_de:ad:05 [00:10:18:de:ad:05]",
                     "Internet Control Message Protocol",
@@ -248,20 +249,21 @@ class PcapViewClass(QFrame):
         DissectedTabHBox.addWidget(DissectedTabTree)
         PacketAreaDissectedTab.setLayout(DissectedTabHBox)
 
-        #Binary Tab Formatting
+        # Binary Tab Formatting
         PacketAreaBinaryTab = QWidget()
         BinaryTextEdit = QTextEdit()
-        BinaryTextEdit.setPlainText("\\x00\\x02\\x157\\xa2D\\x00\\xae\\xf3R\\xaa\\xd1\\x08\\x00E\\x00\\x00C\\x00\\x01\\x00\\x00@\\x06x<\\xc0\n"
-                                    "\\xa8\\x05\\x15B#\\xfa\\x97\\x00\\x14\\00P\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00P\\x02\\x00\n" 
-                                    "\\xbb9\\x00\\x00GET /index.html HTTP/1.0 \\n \\n\n")
+        BinaryTextEdit.setPlainText(
+            "\\x00\\x02\\x157\\xa2D\\x00\\xae\\xf3R\\xaa\\xd1\\x08\\x00E\\x00\\x00C\\x00\\x01\\x00\\x00@\\x06x<\\xc0\n"
+            "\\xa8\\x05\\x15B#\\xfa\\x97\\x00\\x14\\00P\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00P\\x02\\x00\n"
+            "\\xbb9\\x00\\x00GET /index.html HTTP/1.0 \\n \\n\n")
         BinaryTextEdit.setReadOnly(True)
-        
+
         BinaryTabHBox = QHBoxLayout()
         BinaryTabHBox.setContentsMargins(5, 5, 5, 5)
         BinaryTabHBox.addWidget(BinaryTextEdit)
         PacketAreaBinaryTab.setLayout(BinaryTabHBox)
 
-        #Hex Tab Formatting
+        # Hex Tab Formatting
         PacketAreaHexTab = QWidget()
         HexTextEdit = QTextEdit()
         HexTextEdit.setPlainText("00 00 00 00 E0 1E A7 05 6F 00 10 ........\n"
@@ -272,12 +274,12 @@ class PcapViewClass(QFrame):
                                  "00 00 28 16 A2 0A 00 03 50 00 0C ........\n"
                                  "00 00 30 01 01 0F 19 03 80 11 01 ........\n")
         HexTextEdit.setReadOnly(True)
-        
+
         HexTabHBox = QHBoxLayout()
         HexTabHBox.setContentsMargins(5, 5, 5, 5)
         HexTabHBox.addWidget(HexTextEdit)
         PacketAreaHexTab.setLayout(HexTabHBox)
-        
+
         PacketAreaTabWidget.addTab(PacketAreaDissectedTab, "Dissected")
         PacketAreaTabWidget.addTab(PacketAreaBinaryTab, "Binary")
         PacketAreaTabWidget.addTab(PacketAreaHexTab, "Hex")
@@ -285,11 +287,11 @@ class PcapViewClass(QFrame):
         packetAreaLayout.addWidget(PacketAreaTabWidget)
         self.packetArea.setLayout(packetAreaLayout)
 
-#Fuzzing Area defined here
+    # Fuzzing Area defined here
     def createFuzzingArea(self):
         self.fuzzingArea = QGroupBox("Fuzzing Area")
-        
-        #Labels and text fields are set here
+
+        # Labels and text fields are set here
         packetNameLabel = QLabel("Selected Packet Name:")
         packetNameEdit = QLineEdit()
         packetNameEdit.setPlaceholderText('Selected Packet Name')
@@ -314,15 +316,15 @@ class PcapViewClass(QFrame):
         maximumEdit = QLineEdit()
         maximumEdit.setPlaceholderText('Maximum')
         maximumLabel.setBuddy(maximumEdit)
-        
-        #Fuzz and Stop buttons are set here
+
+        # Fuzz and Stop buttons are set here
         fuzzButton = QPushButton("Fuzz")
         fuzzButton.setDefault(False)
         stopButton = QPushButton("Stop")
         stopButton.setDefault(False)
 
         layout = QGridLayout()
-        
+
         layout.addWidget(packetNameLabel, 0, 0, 1, 2)
         layout.addWidget(packetNameEdit, 0, 1, 1, 2)
         layout.addWidget(packetFieldLabel, 1, 0, 1, 2)
@@ -337,11 +339,12 @@ class PcapViewClass(QFrame):
         layout.addWidget(stopButton, 5, 2)
         layout.setRowStretch(5, 1)
         self.fuzzingArea.setLayout(layout)
-        
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     Main = PcapViewClass()
-    #Displays the MainView QFrame
+    # Displays the MainView QFrame
     Main.show()
-    #app.exec is necessary to keep the window open even after execution
+    # app.exec is necessary to keep the window open even after execution
     sys.exit(app.exec_())
