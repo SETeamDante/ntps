@@ -4,53 +4,68 @@ from PyQt5 import  QtGui
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 import sys
 import PCAPView
-from PCAPView import *
-from  PacketView import *
+from PCAPView import PcapViewClass
+from PacketView import LivePacketView
 
+class Index:
+
+    def LoadViews(self):
+        self.Content = ContentViewClass()
+        self.Content.ContentView.addWidget(HookViewClass())
+        self.Content.ContentView.addWidget(HookCollectionViewClass())
+        self.Content.ContentView.addWidget(LivePacketView())
+        self.Content.ContentView.addWidget(PcapViewClass())
+
+        return self.Content
+
+class EventHandler:
+    def __init__(self):
+        super().__init__()
+        self.Content = Index().LoadViews()
+        self.OptionView = OptionViewClass()
+        self.OptioButtonHandler()
+
+    def OptioButtonHandler(self):
+        self.OptionView.btn.clicked.connect(lambda: self.on_click(0))
+        self.OptionView.btn2.clicked.connect(lambda: self.on_click(1))
+        self.OptionView.btn3.clicked.connect(lambda: self.on_click(2))
+        self.OptionView.btn4.clicked.connect(lambda: self.on_click(3))
+
+    @pyqtSlot()
+    def on_click(self, number):
+        print('PyQt5 button click')
+        # Debbuging purposes
+        print(number)
+        # Changes the current index of a StackedLayout
+        self.Content.ContentView.setCurrentIndex(number)
+        print(number)
+
+    def get_Content(self):
+        return self.Content
+    def get_Option(self):
+        return self.OptionView
 
 
 class OptionViewClass(QFrame):
-    def __init__(self, ContentView):
+    def __init__(self):
         super().__init__()
-        #Pass reference of the ContentViewClass ContentView Layer
-        self.ContentView = ContentView
-        # Add a style to MainView (TO BE CHANGE)
-        # TODO
-        self.setStyleSheet("margin:5px; border:1px solid rgb(0, 10, 10); ")
-        self.initUI()
-        # ContentView  = ContentViewClass()
 
-    def initUI(self):
-        #Creates a new Vertical BoxLayout
+        # Creates a new Vertical BoxLayout
         self.OptionView = QVBoxLayout(self)
         # Creates 4 Button Widget while also setting the label
         self.btn = QPushButton("Hook")
         self.btn2 = QPushButton("Hook Collection")
         self.btn3 = QPushButton("LivePacket")
         self.btn4 = QPushButton("Pcap")
+        self.initUI()
+
+    def initUI(self):
         #Adds 4 button QWidgets to OptionView(BoxLayout)
         self.OptionView.addWidget(self.btn)
         self.OptionView.addWidget(self.btn2)
         self.OptionView.addWidget(self.btn3)
         self.OptionView.addWidget(self.btn4)
-        #Connects a button with a function
-        #-clicked.connect can only pass function calls and no primitives
-        #-so we are using lambda to mask the arguments as a Call
-        self.btn.clicked.connect(lambda : self.on_click(0))
-        self.btn2.clicked.connect(lambda :self.on_click(1))
-        self.btn3.clicked.connect(lambda :self.on_click(2))
-        self.btn4.clicked.connect(lambda :self.on_click(3))
         self.setLayout(self.OptionView)
-
-    @pyqtSlot()
-    def on_click(self, number):
-        print('PyQt5 button click')
-        #Debbuging purposes
-        print(number)
-        #Changes the current index of a StackedLayout
-        self.ContentView.setCurrentIndex(number)
-
-
 
 class ContentViewClass(QWidget):
     def __init__(self):
@@ -58,9 +73,6 @@ class ContentViewClass(QWidget):
         self.ContentView = QStackedLayout()
         super().__init__()
         self.setWindowTitle("Content")
-        #Add a style to ContentViewClass (TO BE CHANGE)
-        #TODO
-        # self.setStyleSheet("margin:1px; border:1px solid rgb(0, 0, 255); ")
         # Awakens and stores location of HookCollectionViewClass
         self.VHookCollection = HookCollectionViewClass()
         # Awakens and stores location of PcapViewClass
@@ -72,12 +84,6 @@ class ContentViewClass(QWidget):
 
     def initUI(self):
 
-        #Add QFrame( Or QWidget) to ContentView(StackLayout) in a Queue form
-        self.ContentView.addWidget(self.VHookCollection)
-        self.ContentView.addWidget(self.VHook)
-        self.ContentView.addWidget(self.VPacket)
-        self.ContentView.addWidget(self.VPcap)
-        # Inject ContentView Layout to the QFrame ( or QWidget)
         self.setLayout(self.ContentView)
 
 
@@ -189,25 +195,20 @@ class MainViewClass(QFrame):
         #Set the Main window size ::: setGreometry(Location X, Location Y, Size X, Size Y)
         self.setGeometry(300, 100, 1100, 600)
         self.setWindowTitle("Network Traffic Protocol System")
-        #Add a style to MainView (TO BE CHANGE)
-        #TODO
-        # self.setStyleSheet("margin:5px; border:5px solid rgb(255, 0, 0); ")
         #Calls function to begging making the view
         self.initUI()
 
     def initUI(self):
         #Start GridLayout
         self.MainView = QGridLayout(self)
-        # Initialize and stores location of ContentViewClass
-        self.VContent = ContentViewClass()
-        # Initialize and stores location of OptionViewClass while also sending ContentView layout information
-        self.VOption = OptionViewClass(self.VContent.ContentView)
-        #Adds widget(or frame) in a GridLayout ::: .addWidget(Qwidget or QFrame ,X ,Y ,SizeX ,SizeY):::X and Y start
-        #top right
-        self.MainView.addWidget(self.VOption,0,0,0,1 )
-        self.MainView.addWidget(self.VContent, 1,1,1,5)
-        #Inject MainView Layout to the Qframe ( or QWidget)
+        self.LoadViews()
         self.setLayout(self.MainView)
+
+    def LoadViews(self):
+        Evnt = EventHandler()
+        self.MainView.addWidget(Evnt.get_Option(), 0, 0, 0, 1)
+        self.MainView.addWidget(Evnt.Content, 1, 1, 1, 5)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
