@@ -3,9 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5 import  QtGui
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 import sys
-import PCAPView
-from PCAPView import PcapViewClass
-from PacketView import LivePacketView
+from PacketView import LivePacketView, PCAPView
 
 class Index:
 
@@ -14,7 +12,7 @@ class Index:
         self.Content.ContentView.addWidget(HookViewClass())
         self.Content.ContentView.addWidget(HookCollectionViewClass())
         self.Content.ContentView.addWidget(LivePacketView())
-        self.Content.ContentView.addWidget(PcapViewClass())
+        self.Content.ContentView.addWidget(PCAPView())
 
         return self.Content
 
@@ -76,7 +74,7 @@ class ContentViewClass(QWidget):
         # Awakens and stores location of HookCollectionViewClass
         self.VHookCollection = HookCollectionViewClass()
         # Awakens and stores location of PcapViewClass
-        self.VPcap = PcapViewClass()
+        self.VPcap = PCAPView()
         self.VHook = HookViewClass()
         self.VPacket = LivePacketView()
         #Calls function to begging making the view
