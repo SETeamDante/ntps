@@ -109,9 +109,7 @@ class HookCollectionViewClass(QWidget):
         self.layout.setColumnMinimumWidth(4, 100)
         self.layout.addWidget(self.searchLabel, 1, 5)
         self.layout.addWidget(self.searchBox, 1, 6)
-
-        # ---------------
-
+        # -------------------------------
         self.HookCollectionPropertiesArea = QTreeWidget(self)
         self.HookCollectionPropertiesArea.setSelectionMode(QAbstractItemView.NoSelection)
         self.HookCollectionPropertiesArea.setAlternatingRowColors(True)
