@@ -11,6 +11,7 @@ class Hook:
         self.path = path
         self.status = False
         self.code = open(path, 'r+').read()
+        self.inCollection = False
         # self.lifetime = None
 
     # This method has been tested
@@ -23,17 +24,20 @@ class Hook:
     # Possible solution running hooks on their own threads
     # Need to fix
     def activateHook(self):
-        self.status = True
-        print("%s is enabled" % self.name)
-        # try:
-        #     self.lifetime = Thread(target=self.runHook(), args=[]).start()
-        #     self.lifetime.join()
-        # except:
-        #     pass
+        if self.inCollection is True:
+            print("Hook %s is enabled" % self.name)
+            self.status = True
+            # try:
+            #     self.lifetime = Thread(target=self.runHook(), args=[]).start()
+            #     self.lifetime.join()
+            # except:
+            #     pass
 
-        # self.lifetime.start()
+            # self.lifetime.start()
 
-        # self.runHook()
+            # self.runHook()
+        else:
+            print("Hook %s does not belong to a collection and can't be enabled!" % self.name)
 
     def disableHook(self):
         print("%s is disabled" % self.name)
@@ -54,3 +58,4 @@ class Hook:
         print("Hook Description is: ", self.description)
         print("Hook Path: ", self.path)
         print("Status: ", self.status)
+        print("In collection: ", self.inCollection)

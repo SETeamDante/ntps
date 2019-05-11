@@ -12,9 +12,21 @@ class HookCollection():
             self.status = False
 
         self.execNum = execNum
+        self.content = []
 
     # This method is to add the Hooks to a specific Hook Collection
-    def addHookToCollection(self):
+    def addHookToCollection(self, hook):
+        hook.inCollection = True
+        self.content.append(hook)
+        return
+
+    def removeHookFromCollection(self, hook):
+        for i in self.content:
+            if i.name is hook.name:
+                hook.inCollection = False
+                print("%s deleted from %s" % (hook.name, self.name))
+                # hookC.removeHook(hook)
+                self.content.remove(i)
         return
 
     # This method is in charge of deleting the Hook Collection object from the system
@@ -29,3 +41,7 @@ class HookCollection():
         print("Hook Collection Description is: ", self.description)
         print("Collection status: ", self.status)
         print("Exec Num: ", self.execNum)
+        print("Hooks from this collection: \n")
+        for i in self.content:
+            i.printHook()
+

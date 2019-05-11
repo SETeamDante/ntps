@@ -1,4 +1,3 @@
-from Hook import Hook
 from Catalog import Catalog
 
 
@@ -7,13 +6,12 @@ class HookCatalog(Catalog):
     def __init__(self):
         self.hookCatalog = []
 
-    def addHook(self, name, description, path):
-        hook = Hook(name, description, path)  # type: Hook
+    def addHook(self, hook):
         self.hookCatalog.append(hook)
 
     def removeHook(self, hook):
         for i in self.hookCatalog:
-            if (i.name is hook.name):
+            if i.name is hook.name:
                 print("%s deleted from list" % (hook.name))
                 hook.removeHook()
                 self.hookCatalog.remove(i)
