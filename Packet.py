@@ -48,8 +48,7 @@ class Packet:
 
     def EditField(self, LayerName, FieldName, NewVal):
         if self.hasField(LayerName, FieldName):
-            layer = self.layerList.getLayer(LayerName)
-            exec("self.pkt["+'"'+LayerName+'"'+"]."+FieldName+" = NewVal")
+            exec("self.pkt["+'"'+LayerName+'"'+"]."+FieldName+" = "+ NewVal)
             self.RedrawPkt()
 
     def RedrawPkt(self):
@@ -148,7 +147,6 @@ if __name__ == '__main__':
     print(pkt.hasField("IP","id"))
     print(pkt.GetFieldValue("IP","version"))
     print(pkt.GetFieldListNamesAndValues("IP"))
-    pkt.EditField("IP","version","123")
+    pkt.EditField("IP","version","55555")
     print(pkt.GetFieldListNamesAndValues("IP"))
-    # print(pkt.GetFieldValue("IP", "version"))
 
