@@ -1,23 +1,36 @@
-import Hook
-import Catalog
+from Hook import Hook
+from Catalog import Catalog
 
 
 class HookCatalog(Catalog):
-    hookCatalog = []
+
+    def __init__(self):
+        self.hookCatalog = []
 
     def addHook(self, name, description, path):
-        hook = Hook()  # type: Hook
-        hook.name = name
-        hook.description = description
-        hook.path = path
-        for i in range():
-            self.hookCatalog.append(hook)
-        pass
+        hook = Hook(name, description, path)  # type: Hook
+        self.hookCatalog.append(hook)
 
+    def removeHook(self, hook):
+        for i in self.hookCatalog:
+            if (i.name is hook.name):
+                print("%s deleted from list" % (hook.name))
+                hook.removeHook()
+                self.hookCatalog.remove(i)
+
+    # Method tested
+    # Using sorting function from Catalog super class
     def sortHooks(self):
-        option = "ascending"
+        option = input("Sort (ascending/descending): ")
         super().sortCatalog(option, self.hookCatalog)
 
+    # Method tested
+    # Using search function from Catalog super class
     def searchHook(self):
-        hookName = "Dummy.py"
+        hookName = input("Hook name you want to search: ")
         super().searchCatalog(self.hookCatalog, hookName)
+
+    # Method tested (Debugging tool)
+    def printHC(self):
+        super().printCatalog(self.hookCatalog, True)
+
