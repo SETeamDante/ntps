@@ -4,12 +4,40 @@ from PyQt5.QtWidgets import (QCheckBox, QComboBox, QGridLayout, QGroupBox,
                              QStyle, QStyledItemDelegate, QStyleOptionButton,
                              QTabWidget, QTextEdit, QTreeWidget,
                              QTreeWidgetItem, QToolButton, QVBoxLayout, QWidget)
+from Proxy_Disabled_Overlay import Proxy_Dis_Overlay
+from Proxy_Enabled_Overlay import Proxy_En_Overlay
 
 
 class Area(QGroupBox):
     def __init__(self, title=None):
         super().__init__(title)
 
+class manualPacketManipulation(Area):
+    def __init__(self):
+        super().__init__()
+
+        layout = QHBoxLayout()
+        self.setLayout(layout)
+
+        self.saveButton = QPushButton('Save Modification')
+        self.saveButton.clicked.connect(self.saveModification)
+        self.forwardButton = QPushButton('Forward')
+        self.forwardButton.clicked.connect(self.forwardPacket)
+        self.dropButton = QPushButton('Drop')
+        self.dropButton.clicked.connect(self.dropPacket)
+
+        layout.addWidget(self.saveButton)
+        layout.addWidget(self.forwardButton)
+        layout.addWidget(self.dropButton)
+
+    def saveModification(self):
+        print("Saving")
+
+    def forwardPacket(self):
+        print("Forwarding")
+
+    def dropPacket(self):
+        print("Dropping")
 
 class CaptureFilterArea(Area):
     def __init__(self):
@@ -20,12 +48,21 @@ class CaptureFilterArea(Area):
 
         self.filter_text_box = QLineEdit()
         self.filter_text_box.setPlaceholderText('Filter Expression')
+        self.applyButton = QPushButton('Apply')
+        self.applyButton.clicked.connect(self.applyFilter)
+        self.clearButton = QPushButton('Clear')
+        self.clearButton.clicked.connect(self.clearFilter)
 
         layout.addWidget(QLabel('Filter:'))
         layout.addWidget(self.filter_text_box)
-        layout.addWidget(QPushButton('Apply'))
-        layout.addWidget(QPushButton('Clear'))
+        layout.addWidget(self.applyButton)
+        layout.addWidget(self.clearButton)
 
+    def applyFilter(self):
+        print("Applying")
+
+    def clearFilter(self):
+        self.filter_text_box.clear()
 
 class DissectedTabDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
@@ -193,10 +230,18 @@ class FuzzingArea(Area):
         layout.addWidget(self.maximum_text_box, 4, 1, 1, 2)
 
         self.fuzz_button = QPushButton('Fuzz')
+        self.fuzz_button.clicked.connect(self.fuzzField)
         layout.addWidget(self.fuzz_button, 5, 1)
 
         self.stop_button = QPushButton('Stop')
+        self.stop_button.clicked.connect(self.stopFuzzing)
         layout.addWidget(self.stop_button, 5, 2)
+        
+    def fuzzField(self):
+        print("Fuzzing")
+        
+    def stopFuzzing(self):
+        print("Stopping")
 
 
 class PlusMinusButtons(QGroupBox):
@@ -208,12 +253,20 @@ class PlusMinusButtons(QGroupBox):
 
         plus_button = QToolButton()
         plus_button.setArrowType(Qt.RightArrow)
+        plus_button.clicked.connect(self.add)
         layout.addWidget(plus_button, 0, Qt.AlignCenter)
 
         minus_button = QToolButton()
         minus_button.setArrowType(Qt.LeftArrow)
+        minus_button.clicked.connect(self.remove)
         layout.addWidget(minus_button, 0, Qt.AlignCenter)
-
+        
+    def add(self):
+        print("Add")
+        
+    def remove(self):
+        print("Remove")
+        
 class PCAPFileArea(Area):
     def __init__(self):
         super().__init__('PCAP File')
@@ -223,11 +276,21 @@ class PCAPFileArea(Area):
 
         self.pcap_file_text_box = QLineEdit()
         self.pcap_file_text_box.setPlaceholderText('PCAP File Path')
+        self.openButton = QPushButton('Open')
+        self.openButton.clicked.connect(self.openPCAP)
+        self.cancelButton = QPushButton('Cancel')
+        self.cancelButton.clicked.connect(self.cancelPCAP)
 
         layout.addWidget(QLabel('PCAP File:'))
         layout.addWidget(self.pcap_file_text_box)
-        layout.addWidget(QPushButton('Open'))
-        layout.addWidget(QPushButton('Cancel'))
+        layout.addWidget(self.openButton)
+        layout.addWidget(self.cancelButton)
+
+    def openPCAP(self):
+        print("Opening")
+
+    def cancelPCAP(self):
+        self.pcap_file_text_box.clear()
 
 
 class LivePacketBehaviors(QWidget):
@@ -239,11 +302,14 @@ class LivePacketBehaviors(QWidget):
 
         self.proxy_combo_box = QComboBox()
         self.proxy_combo_box.addItems(['Disabled', 'Enabled'])
+        self.proxy_combo_box.currentIndexChanged.connect(self.toggleProxy)
 
         self.interception_combo_box = QComboBox()
         self.interception_combo_box.addItems(['Disabled', 'Enabled'])
+        self.interception_combo_box.currentIndexChanged.connect(self.toggleInterception)
 
         self.queue_text_box = QLineEdit('100')
+        self.queue_text_box.textChanged.connect(self.adjustSize)
 
         layout.addWidget(QLabel('Proxy Behavior:'))
         layout.addWidget(self.proxy_combo_box)
@@ -251,7 +317,24 @@ class LivePacketBehaviors(QWidget):
         layout.addWidget(self.interception_combo_box)
         layout.addWidget(QLabel('Queue Size:'))
         layout.addWidget(self.queue_text_box)
-
+        
+    def toggleProxy(self, i):
+        if (i == 0):
+            ProxyDisOverlay = Proxy_Dis_Overlay()
+            
+        if (i == 1):
+            ProxyEnOverlay = Proxy_En_Overlay()
+            
+    def toggleInterception(self, i):
+        if (i == 0):
+            print("Disabled")
+            
+        if (i == 1):
+            print("Enabled")
+            
+    def adjustSize(self, size):
+        print(size)
+    
 
 class PacketView(QWidget):
     def __init__(self, top_widget=None):
@@ -266,8 +349,9 @@ class PacketView(QWidget):
         layout.addWidget(CaptureFilterArea(), 1, 0, 1, 3)
         layout.addWidget(PacketArea(), 2, 0, 1, 3)
         layout.addWidget(FieldArea(), 3, 0, 1, 1)
-        layout.addWidget(PlusMinusButtons(), 3, 1, 1, 1)
-        layout.addWidget(FuzzingArea(), 3, 2, 1, 1)
+        layout.addWidget(PlusMinusButtons(), 3, 1, 2, 1)
+        layout.addWidget(FuzzingArea(), 3, 2, 2, 1)
+        layout.addWidget(manualPacketManipulation(), 4, 0, 1, 1)
 
 class LivePacketView(PacketView):
     def __init__(self):
