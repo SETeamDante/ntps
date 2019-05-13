@@ -4,9 +4,10 @@ from PyQt5 import  QtGui
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 import sys
 from PacketView import LivePacketView, PCAPView
+from Create_Edit_Hook_Overlay import Hook_Overlay
+from Create_Edit_HookCollection_Overlay import HookCol_Overlay
 
 class Index:
-
     def LoadViews(self):
         self.Content = ContentViewClass()
         self.Content.ContentView.addWidget(HookViewClass())
@@ -95,12 +96,15 @@ class HookCollectionViewClass(QWidget):
 
     def initUI(self):
         # --------------------------
-
-        self.addHookButton = QPushButton("+Hook")
+        self.addHookButton = QPushButton("+Hook Collection")
+        self.addHookButton.clicked.connect(self.openCreateEditHookCol)
         self.editHookButton = QPushButton("Edit")
+        self.editHookButton.clicked.connect(self.openCreateEditHookCol)
         self.deleteHookButton = QPushButton("Delete")
+        self.deleteHookButton.clicked.connect(self.deleteHookCol)
         self.searchLabel = QLabel("Search")
         self.searchBox = QLineEdit()
+        self.searchBox.textChanged.connect(self.searchCollection)
 
         self.layout = QGridLayout()
         self.layout.addWidget(self.addHookButton, 1, 0)
@@ -136,6 +140,16 @@ class HookCollectionViewClass(QWidget):
         self.HookCollectionView.addWidget(self.HookCollectionPropertiesArea5, 1, 0, 1, 1)
         self.HookCollectionView.addLayout(self.layout, 0, 0, 1, 1)
         self.setLayout(self.HookCollectionView)
+        
+    def openCreateEditHookCol(self):
+        print("Hi")
+        hookColEditor = HookCol_Overlay()
+        
+    def deleteHookCol(self):
+        print("Delete")
+        
+    def searchCollection(self, target):
+        print(target)
 
 class HookViewClass(QWidget):
     def __init__(self):
@@ -146,12 +160,15 @@ class HookViewClass(QWidget):
 
     def initUI(self):
         # --------------------------
-
         self.addHookButton = QPushButton("+Hook")
+        self.addHookButton.clicked.connect(self.openCreateEditHook)
         self.editHookButton = QPushButton("Edit")
+        self.editHookButton.clicked.connect(self.openCreateEditHook)
         self.deleteHookButton = QPushButton("Delete")
+        self.deleteHookButton.clicked.connect(self.deleteHook)
         self.searchLabel = QLabel("Search")
         self.searchBox = QLineEdit()
+        self.searchBox.textChanged.connect(self.searchHook)
 
         self.layout = QGridLayout()
         self.layout.addWidget(self.addHookButton, 1, 0)
@@ -185,6 +202,16 @@ class HookViewClass(QWidget):
         self.HookPropertiesArea5.adjustSize()
         self.setLayout(self.HookView)
 
+    def openCreateEditHook(self):
+        print("Hi")
+        hookEditor = Hook_Overlay()
+        
+    def deleteHook(self):
+        print("Delete")
+        
+    def searchHook(self, target):
+        print(target)
+        
 class MainViewClass(QFrame):
     def __init__(self):
         super().__init__()

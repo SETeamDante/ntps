@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QAction, QLineEdit, QLabel
 
-class App(QMainWindow):
+class Hook_Overlay(QMainWindow):
 
 
     def __init__(self):
@@ -20,8 +20,6 @@ class App(QMainWindow):
         self.setWindowTitle(self.title)
         self.setStyleSheet("QMainWindow {background-color: rgb(216,228,237);}")
         # self.setStyleSheet("QMApplication {background-color: rgb(216,228,237);}")
-
-
 
         self.setGeometry(self.left, self.top, self.width, self.height)
 
@@ -66,7 +64,7 @@ class App(QMainWindow):
         self.cancelButton.move(300, 130)
         self.cancelButton.resize(65, 25)
 
-        self.show()
+        #self.show()
         #connect button to function on_click
         # self.browseButton.clicked.connect(self.on_click)
 
@@ -80,7 +78,7 @@ class App(QMainWindow):
     #     QMessageBox.question(self, 'Message - pythonspot.com', "You typed: " + textboxValue, QMessageBox.Ok, QMessageBox.Ok)
     #     self.textbox.setText("")
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-ex = App()
-sys.exit(app.exec_())
+#if __name__ == '__main__':
+    #app = QApplication(sys.argv)
+#ex = App()
+#sys.exit(app.exec_())

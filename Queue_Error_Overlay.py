@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 
-class App(QWidget):
+class Q_Err_Overlay(QWidget):
 
     def __init__(self):
         super().__init__()
@@ -24,10 +24,3 @@ class App(QWidget):
                                                                 "space available.",
                                                                 QMessageBox.Ok)
 
-        self.show()
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = App()
-    sys.exit(app.exec_())

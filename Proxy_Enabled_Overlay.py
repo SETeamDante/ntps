@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 
-class App(QWidget):
+class Proxy_En_Overlay(QWidget):
 
     def __init__(self):
         super().__init__()
@@ -23,11 +23,3 @@ class App(QWidget):
                                                     "The System has backed up the System’s Proxy settings and will "
                                                     "restore to it when the Proxy behavior is disabled.",
                                                     QMessageBox.Ok)
-
-        self.show()
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = App()
-    sys.exit(app.exec_())

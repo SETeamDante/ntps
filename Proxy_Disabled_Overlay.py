@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 
-class App(QWidget):
+class Proxy_Dis_Overlay(QWidget):
 
     def __init__(self):
         super().__init__()
@@ -20,14 +20,6 @@ class App(QWidget):
 
         self.ProxyDisabled = QMessageBox.information(self, 'Proxy Disabled Notification',
                                                     "Proxy behavior has been disabled.  "
-                                                    "The System has restored to the previous Proxy settings and it will"
+                                                    "The System has restored to the previous Proxy settings and it will "
                                                     "stop appending packet information to the live Traffic PCAP file.",
                                                     QMessageBox.Ok)
-
-        self.show()
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = App()
-    sys.exit(app.exec_())

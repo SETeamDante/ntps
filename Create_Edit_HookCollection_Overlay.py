@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QComboBox, QMainWindow, QHBoxLayout, QVBoxLayout, QLineEdit
 
 
-class App(QMainWindow):
+class HookCol_Overlay(QMainWindow):
 
     def __init__(self):
         super().__init__()
@@ -59,13 +59,9 @@ class App(QMainWindow):
         self.ExecSequence.move(110, 140)
         self.ExecSequence.resize(180, 30)
 
-        self.show()
+        #self.show()
 
-
-
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = App()
-    sys.exit(app.exec_())
+#if __name__ == '__main__':
+    #app = QApplication(sys.argv)
+    #ex = App()
+    #sys.exit(app.exec_())

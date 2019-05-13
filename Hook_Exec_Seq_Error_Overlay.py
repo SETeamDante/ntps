@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 
-class App(QWidget):
+class Hook_Ex_Seq_Err_Overlay(QWidget):
 
     def __init__(self):
         super().__init__()
@@ -24,10 +24,3 @@ class App(QWidget):
                                                  "sequencing for the rest of hook collections?",
                                                  QMessageBox.Yes | QMessageBox.No)
 
-        self.show()
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = App()
-    sys.exit(app.exec_())

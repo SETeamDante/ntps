@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 
-class App(QWidget):
+class Hook_Ex_Err_Overlay(QWidget):
 
     def __init__(self):
         super().__init__()
@@ -23,11 +23,3 @@ class App(QWidget):
                                                  "Would you like to override the sequence number and update "
                                                  "the sequencing for the rest of hooks within this hook collection?",
                                                  QMessageBox.Yes | QMessageBox.No)
-
-        self.show()
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = App()
-    sys.exit(app.exec_())

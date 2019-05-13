@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QAction, QLineEdit, QLabel
 
-class App(QMainWindow):
+class Saved_FuzzPacket_Overlay(QMainWindow):
 
 
     def __init__(self):
@@ -53,7 +53,7 @@ class App(QMainWindow):
 
         self.show()
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-ex = App()
-sys.exit(app.exec_())
+#if __name__ == '__main__':
+    #app = QApplication(sys.argv)
+    #ex = App()
+    #sys.exit(app.exec_())
