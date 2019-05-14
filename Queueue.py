@@ -1,4 +1,4 @@
-class Queueue():
+class Queueue:
     def __init__(self):
         self.curr = 0
         self.Max = 100

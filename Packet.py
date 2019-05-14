@@ -1,19 +1,14 @@
 from scapy.all import rdpcap
-from scapy.all import send
-from PacketList import PacketList
-from Queueue import Queueue
-import sys
-from scapy.all import ls
-from scapy.all import ETHER_TYPES
-from scapy.layers.l2 import Ether
 
 
-class Packet():
-    def __init__(self, pkt, Frame, PktList):
+
+class Packet:
+    def __init__(self, pkt, Frame, PktList, IsPcap):
         self.Frame = Frame
         self.pkt = pkt
         self.layerList = LayerList(self.pkt)
         PktList.appendPacket(self)
+        self.IsPcap = IsPcap
 
     def GetPacket(self):
         return self.pkt
@@ -58,8 +53,11 @@ class Packet():
     def RedrawPkt(self):
         self.layerList = LayerList(self.pkt)
 
-    def getFrame(self):
+    def GetFrame(self):
         return self.Frame
+
+    def GetIsPcap(self):
+        return self.IsPcap
 
 class LayerList():
     def __init__(self, pkt):
@@ -142,19 +140,4 @@ class Field():
 
 if __name__ == '__main__':
     test = rdpcap("test.pcap")
-    q = Queueue()
-    p = PacketList(1,1, q)
-
-    print(q.curr)
-    for i in range(len(test)):
-        # test[i].show()
-        pkt = Packet(test[i], i, p)
-    p.DropPacket(99)
-    for i in p.list:
-        print(i.GetLayerListNames())
-        print(i.getFrame())
-    print(q.curr)
-
-
-
-
+    

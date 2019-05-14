@@ -1,10 +1,10 @@
 from scapy.all import send
 
-class PacketList():
+class PacketList:
     def __init__(self, HookCollection, PcapSystem, Queue):
         self.list = []
         # self.HookCollection = HookCollection
-        # self.PcapSystem = PcapSystem
+        self.PcapSystem = PcapSystem
         self.Queue = Queue
         self.Frame = 0
 
@@ -28,17 +28,29 @@ class PacketList():
 
     def FowardPacket(self, Frame):
         for i in self.list:
-            if i.getFrame() == Frame:
-                # self.PcapSystem.AppendPacket(i)
+            if i.GetFrame() == Frame:
+                if not i.GetIsPcap():
+                    self.PcapSystem.AppendPacket(i)
                 # send(i)
                 self.list.remove(i)
                 self.Queue.RemoveQueue()
 
     def DropPacket(self, Frame):
         for i in self.list:
-            if i.getFrame() == Frame:
-                self.list.remove(i)
-                self.Queue.RemoveQueue()
+            if i.GetFrame() == Frame:
+                if i.GetIsPcap():
+                    print("ERORORROROR")
+                    pass
+                    #Insert Error Box
+                else:
+                    print("boo[")
+                    self.list.remove(i)
+                    self.Queue.RemoveQueue()
+
+    def GetPacket(self, Frame):
+        for i in self.list:
+            if i.GetFrame() == Frame:
+                return i
 
 
 
