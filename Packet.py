@@ -140,4 +140,3 @@ class Field():
 
 if __name__ == '__main__':
     test = rdpcap("test.pcap")
-    
