@@ -1,15 +1,19 @@
 from scapy.all import rdpcap
+from scapy.all import send
+from PacketList import PacketList
+from Queueue import Queueue
 import sys
 from scapy.all import ls
 from scapy.all import ETHER_TYPES
 from scapy.layers.l2 import Ether
 
 
-class Packet:
-    def __init__(self, pkt, Frame):
+class Packet():
+    def __init__(self, pkt, Frame, PktList):
         self.Frame = Frame
         self.pkt = pkt
         self.layerList = LayerList(self.pkt)
+        PktList.appendPacket(self)
 
     def GetPacket(self):
         return self.pkt
@@ -53,6 +57,9 @@ class Packet:
 
     def RedrawPkt(self):
         self.layerList = LayerList(self.pkt)
+
+    def getFrame(self):
+        return self.Frame
 
 class LayerList():
     def __init__(self, pkt):
@@ -102,7 +109,8 @@ class FieldList():
         split_lyr = self.spliting()
         counter = 0
         for i in split_lyr[1:]:
-            if i == '' or i == '     \options   \\':
+            if i == '' or i == '     \options   \\' or i == '           \qd        \\' or i== '            |'\
+                    or i == '           \\'+'an'+'        \\' or i == '           \options   \\':
                 continue
             field = Field(i, counter)
             self.List.append(field)
@@ -134,19 +142,19 @@ class Field():
 
 if __name__ == '__main__':
     test = rdpcap("test.pcap")
-    pkt = Packet(test[0], 1)
-    print(pkt.layerList.List[0].lyr_name)
-    print(pkt.layerList.List[0].fieldList.List[0].fld_name)
-    print(pkt.layerList.List[0].fieldList.List[1].fld_name)
-    print(pkt.GetLayerListNames())
-    print(pkt.GetFieldListNames("IP"))
-    print(pkt.hasLayer("IP"))
-    print(pkt.hasLayer("IPanj8"))
-    print(pkt.hasField("asda","asd"))
-    print(pkt.hasField("IP","asd"))
-    print(pkt.hasField("IP","id"))
-    print(pkt.GetFieldValue("IP","version"))
-    print(pkt.GetFieldListNamesAndValues("IP"))
-    pkt.EditField("IP","version","55555")
-    print(pkt.GetFieldListNamesAndValues("IP"))
+    q = Queueue()
+    p = PacketList(1,1, q)
+
+    print(q.curr)
+    for i in range(len(test)):
+        # test[i].show()
+        pkt = Packet(test[i], i, p)
+    p.DropPacket(99)
+    for i in p.list:
+        print(i.GetLayerListNames())
+        print(i.getFrame())
+    print(q.curr)
+
+
+
 
