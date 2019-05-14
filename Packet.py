@@ -1,6 +1,6 @@
 from scapy.all import rdpcap
-
-
+from scapy.all import hexdump
+from scapy.all import raw
 
 class Packet:
     def __init__(self, pkt, Frame, PktList, IsPcap):
@@ -12,6 +12,12 @@ class Packet:
 
     def GetPacket(self):
         return self.pkt
+
+    def GetHexDump(self):
+        return hexdump(self.pkt, dump=True)
+
+    def GetBinary(self):
+        return raw(self.pkt)
 
     def AddtoPktList(self, PktList):
         PktList.appendPacket(self)
