@@ -1,33 +1,35 @@
-from Catalog import Catalog
+import operator
 
 
-class HookCollectionCatalog(Catalog):
+class Catalog: # The catalog class is ready for integration
 
-    def __init__(self):
-        self.hookCollectionCatalog = []
+    # This method has been tested
+    # Method to sort in ascending or descending order any of the catalogs using "operator"
+    def sortCatalog(self, option, list):
 
-    def addHookCollection(self, hookCollection):
-        self.hookCollectionCatalog.append(hookCollection)
+        #     sort in ascending order
+        if option is "ascending":
+            list.sort(key=operator.attrgetter('name'))
 
-    def removeHookCollection(self, hookCollection):
-        for i in self.hookCollectionCatalog:
-            if (i.name is hookCollection.name):
-                print("%s deleted from list" % (hookCollection.name))
-                hookCollection.removeHookCollection()
-                self.hookCollectionCatalog.remove(i)
+        #     sort in descending order
+        else:
+            list.sort(key=operator.attrgetter('name'), reverse=True)
 
-    # Method tested
-    # Using sorting function from Catalog super class
-    def sortHookCollection(self):
-        option = input("Sort (ascending/descending): ")
-        super().sortCatalog(option, self.hookCollectionCatalog)
+    # This method has been tested
+    # In charge of looking through all the Hooks/Hook Collection and display a match to the search query
+    def searchCatalog(self, list, searchVal):
+        for i in list:
+            if i.name == searchVal:
+                i.printHook()
+                return
 
-    # Method tested
-    # Using search function from Catalog super class
-    def searchHookCollection(self):
-        hookCollectionName = input("Hook Collection name you want to search: ")
-        super().searchCatalog(self.hookCollectionCatalog, hookCollectionName)
+        print("Not found")
 
-    # Method tested (Debugging tool)
-    def printHCC(self):
-        super().printCatalog(self.hookCollectionCatalog, False)
+    # Debuggging tool
+    def printCatalog(self, list, type):
+        if type is True:
+            for i in list:
+                i.printHook()
+        else:
+            for i in list:
+                i.printCollection()

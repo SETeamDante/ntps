@@ -6,9 +6,11 @@ class HookCatalog(Catalog):
     def __init__(self):
         self.hookCatalog = []
 
+    # This method is to add hooks to the system
     def addHook(self, hook):
         self.hookCatalog.append(hook)
 
+    # This method is to delete hooks from the system
     def removeHook(self, hook):
         for i in self.hookCatalog:
             if i.name is hook.name:
