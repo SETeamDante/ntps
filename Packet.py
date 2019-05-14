@@ -13,6 +13,9 @@ class Packet:
     def GetPacket(self):
         return self.pkt
 
+    def AddtoPktList(self, PktList):
+        PktList.appendPacket(self)
+
     def GetLayerListNames(self):
         LayerListName = []
         for i in self.layerList.List:
@@ -47,7 +50,7 @@ class Packet:
 
     def EditField(self, LayerName, FieldName, NewVal):
         if self.hasField(LayerName, FieldName):
-            exec("self.pkt["+'"'+LayerName+'"'+"]."+FieldName+" = "+ NewVal)
+            exec("self.pkt["+'"'+LayerName+'"'+"]."+FieldName+" = "+ str(NewVal))
             self.RedrawPkt()
 
     def RedrawPkt(self):
