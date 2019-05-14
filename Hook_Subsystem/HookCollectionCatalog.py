@@ -1,7 +1,7 @@
 import operator
 
 
-class Catalog: # The catalog class is ready for integration
+class Catalog:  # The catalog class is ready for integration
 
     # This method has been tested
     # Method to sort in ascending or descending order any of the catalogs using "operator"
