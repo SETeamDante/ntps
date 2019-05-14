@@ -1,6 +1,6 @@
 from scapy.all import rdpcap
-
-
+from scapy.all import hexdump
+from scapy.all import raw
 
 class Packet:
     def __init__(self, pkt, Frame, PktList, IsPcap):
@@ -12,6 +12,15 @@ class Packet:
 
     def GetPacket(self):
         return self.pkt
+
+    def GetHexDump(self):
+        return hexdump(self.pkt, dump=True)
+
+    def GetBinary(self):
+        return raw(self.pkt)
+
+    def AddtoPktList(self, PktList):
+        PktList.appendPacket(self)
 
     def GetLayerListNames(self):
         LayerListName = []
@@ -47,7 +56,7 @@ class Packet:
 
     def EditField(self, LayerName, FieldName, NewVal):
         if self.hasField(LayerName, FieldName):
-            exec("self.pkt["+'"'+LayerName+'"'+"]."+FieldName+" = "+ NewVal)
+            exec("self.pkt["+'"'+LayerName+'"'+"]."+FieldName+" = "+ str(NewVal))
             self.RedrawPkt()
 
     def RedrawPkt(self):
