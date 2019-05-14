@@ -143,7 +143,8 @@ class HookCollectionViewClass(QWidget):
         
     def openCreateEditHookCol(self):
         print("Hi")
-        hookColEditor = HookCol_Overlay()
+        hookColEditor = HookCol_Overlay(self)
+        hookColEditor.show()
         
     def deleteHookCol(self):
         print("Delete")
@@ -204,7 +205,8 @@ class HookViewClass(QWidget):
 
     def openCreateEditHook(self):
         print("Hi")
-        hookEditor = Hook_Overlay()
+        hookEditor = Hook_Overlay(self)
+        hookEditor.show()
         
     def deleteHook(self):
         print("Delete")

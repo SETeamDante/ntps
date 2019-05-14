@@ -1,11 +1,14 @@
 import sys
-from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QComboBox, QMainWindow, QHBoxLayout, QVBoxLayout, QLineEdit
+from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QComboBox, QMainWindow, QHBoxLayout, QVBoxLayout, QLineEdit, QGroupBox, QGridLayout, QCheckBox, QPushButton
 
 
 class HookCol_Overlay(QMainWindow):
 
-    def __init__(self):
-        super().__init__()
+
+    #def __init__(self):
+        #super().__init__()
+    def __init__(self, parent):
+        super(HookCol_Overlay, self).__init__(parent)
         self.title = 'Create/Edit Hook Collection'
         self.left = 10
         self.top = 10
@@ -17,51 +20,92 @@ class HookCol_Overlay(QMainWindow):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.setStyleSheet("QMainWindow {background-color: rgb(216,228,237);}")
-
-        self.widget = QWidget(self)
+        self.setWindowTitle(self.title)
+        
+        self.widget = QWidget()
         self.setCentralWidget(self.widget)
-
+        
+        layout = QGridLayout()
+        self.widget.setLayout(layout)
 
         # Create Hook Collection Name textbox and label
         self.HCNlabel = QLabel("Hook Collection\nName", self)
-        self.HCNlabel.move(7, 20)
+        layout.addWidget(self.HCNlabel, 0, 0, 1, 1)
         self.HookCollectionName = QLineEdit(self)
         self.HookCollectionName.setPlaceholderText("Hook Collection Name")
-        self.HookCollectionName.move(110, 20)
-        self.HookCollectionName.resize(180, 25)
+        layout.addWidget(self.HookCollectionName, 0, 1, 1, 2)
 
         # Create Hook Collection Description textbox and label
         self.HCDlabel = QLabel("Description", self)
-        self.HCDlabel.move(7, 60)
+        layout.addWidget(self.HCDlabel, 1, 0, 1, 1)
         self.HookCollDescription = QLineEdit(self)
         self.HookCollDescription.setPlaceholderText("Hook Collection Description")
-        self.HookCollDescription.move(110, 60)
-        self.HookCollDescription.resize(180, 25)
-
-        layout = QHBoxLayout()
+        layout.addWidget(self.HookCollDescription, 1, 1, 1, 2)
+        
         # Create Hook Collection Description textbox and label
         self.statusLabel = QLabel("Status", self)
-        self.statusLabel.move(7, 100)
-        self.status = QComboBox(self.widget)
+        layout.addWidget(self.statusLabel, 2, 0, 1, 1)
+        self.status = QComboBox()
         self.status.addItem('Enabled')
         self.status.addItem('Disabled')
-        self.status.move(110, 100)
-        self.status.resize(180, 25)
-
-        layout.addWidget(self.status)
-        self.setWindowTitle(self.title)
+        layout.addWidget(self.status, 2, 1, 1, 2)
 
         # Create Execution Sequence textbox and label
         self.ExecSeqlabel = QLabel("Execution\nNumber", self)
-        self.ExecSeqlabel.move(7, 140)
+        layout.addWidget(self.ExecSeqlabel, 3, 0, 1, 1)
         self.ExecSequence = QLineEdit(self)
         self.ExecSequence.setPlaceholderText("Enter Sequence No.")
-        self.ExecSequence.move(110, 140)
-        self.ExecSequence.resize(180, 30)
-
+        layout.addWidget(self.ExecSequence, 3, 1, 1, 2)
+        
+        layout.addWidget(HookList(), 4, 0, 2, 3)
+        
+        
+        self.saveButton = QPushButton('Save')
+        self.saveButton.clicked.connect(self.saveHookCol)
+        layout.addWidget(self.saveButton, 6, 1, 1, 1)
+        self.cancelButton = QPushButton('Cancel')
+        self.cancelButton.clicked.connect(self.cancelHookCol)
+        layout.addWidget(self.cancelButton, 6, 2, 1, 1)
+        
         #self.show()
+        
+    def saveHookCol(self):
+        print("Saved")
+    
+    def cancelHookCol(self):
+        self.close()
+
+class Area(QGroupBox):
+    def __init__(self, title=None):
+        super().__init__(title)
+
+class HookList(Area):
+    def __init__(self):
+        super().__init__('Hook Selection')
+
+        layout = QGridLayout()
+        self.setLayout(layout)
+
+        layout.addWidget(QLabel('Field Hook'), 0, 0)
+        field_names = ['icmp.type', 'icmp.code', 'icmp.checksum',
+                       'icmp.ident', 'icmp.seq']
+        for i, text in enumerate(field_names):
+            layout.addWidget(QCheckBox(text), i+1, 0)
+
+        layout.addWidget(QLabel('Status'), 0, 1)
+        display_formats = ['Disabled', 'Enabled']
+        for i in range(1, len(field_names)+1):
+            combo_box = QComboBox()
+            combo_box.addItems(display_formats)
+            combo_box.setCurrentIndex(1)
+            layout.addWidget(combo_box, i, 1)
+
+        layout.addWidget(QLabel('Hook Execution Sequence'), 0, 2)
+        masks = ['0', '0', '1', '0', '2']
+        for i, text in enumerate(masks):
+            layout.addWidget(QLineEdit(text), i+1, 2)
 
 #if __name__ == '__main__':
     #app = QApplication(sys.argv)
-    #ex = App()
+    #ex = HookCol_Overlay()
     #sys.exit(app.exec_())

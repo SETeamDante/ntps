@@ -18,12 +18,10 @@ class Q_Err_Overlay(QWidget):
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.setStyleSheet("QMessageBox {background-color: rgb(216,228,237);}")
 
-        self.QueueError = QMessageBox.critical(self, 'Queue Error Message',
-                                                                "The queue has reached its capability.  "
-                                                                "No new packets will be excepted until there is "
-                                                                "space available.",
+        self.QueueError = QMessageBox.critical(self, 'Hook Error Message',
+                                                                "This hook does not follow "
+                                                                "the proper guidelines.",
                                                                 QMessageBox.Ok)
-        
         
 #if __name__ == '__main__':
     #app = QApplication(sys.argv)
