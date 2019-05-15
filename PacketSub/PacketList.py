@@ -39,9 +39,7 @@ class PacketList:
         for i in self.list:
             if i.GetFrame() == Frame:
                 if i.GetIsPcap():
-                    print("ERORORROROR")
                     pass
-                    #Insert Error Box
                 else:
                     print("boo[")
                     self.list.remove(i)
