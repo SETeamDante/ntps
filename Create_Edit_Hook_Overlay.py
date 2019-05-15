@@ -1,18 +1,23 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QAction, QLineEdit, QLabel, QFileDialog, QGridLayout
+from HookSub.Hook import Hook
+from Hook_Warning_Overlay import Hook_Warning_Overlay
+from HookSub.HookCatalog import HookCatalog
 
 class Hook_Overlay(QMainWindow):
 
 
     #def __init__(self):
         #super().__init__()
-    def __init__(self, parent):
+    def __init__(self, parent, hookCatalog):
         super(Hook_Overlay, self).__init__(parent)
         self.title = 'Create/Edit Hook'
         self.left = 10
         self.top = 10
         self.width = 400
         self.height = 160
+        self.parentView = parent
+        self.catalog = hookCatalog
         self.initUI()
 
 
@@ -68,11 +73,18 @@ class Hook_Overlay(QMainWindow):
     
     
     def browseHook(self):
-        hookName = QFileDialog.getOpenFileName(self, 'Select Hook', 'c:\\', '')
+        hookName = QFileDialog.getOpenFileName(self, 'Select Hook', 'c:\\home\\student', '')
         self.HookPath.setText(hookName[0])
         
     def saveHook(self):
-        print(self.HookName.text() + " " + self.HookDescription.text() + " " + self.HookPath.text())
+        newHook = Hook(self.HookName.text(), self.HookDescription.text(), self.HookPath.text())
+        if newHook.checkHookProtocol():
+            self.catalog.addHook(newHook)
+            self.parentView.updateView()
+            self.close()
+            
+        else:
+            warning = Hook_Warning_Overlay()
         
     
     def cancelHook(self):

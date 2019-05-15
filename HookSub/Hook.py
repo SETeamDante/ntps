@@ -1,7 +1,6 @@
 from importlib.machinery import SourceFileLoader
 from inspect import signature, isfunction
 
-
 class Hook:
 
     # Common class for all the hooks that are going to be in the system
@@ -16,6 +15,7 @@ class Hook:
         self.inCollection = False
         self.execNum = 0
         self.validHook = False
+        self.association = 0
 
     # This method has been tested
     # This method is in charge of deleting the Hook object from the system

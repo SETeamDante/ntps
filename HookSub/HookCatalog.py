@@ -1,4 +1,4 @@
-from Catalog import Catalog
+from HookSub.Catalog import Catalog
 
 
 class HookCatalog(Catalog):
