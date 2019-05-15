@@ -73,7 +73,6 @@ class Hook:
 
     def RunFunctionalHooks(self, pkt):
         if self.status:
-            if self.checkHookProtocol:
-                self.activateHook(pkt)
+            self.activateHook(pkt)
 
 
