@@ -7,21 +7,22 @@ from PacketView import LivePacketView, PCAPView
 from Create_Edit_Hook_Overlay import Hook_Overlay, Edit_Hook_Overlay
 from Create_Edit_HookCollection_Overlay import HookCol_Overlay
 from HookSub.HookCatalog import HookCatalog
+from HookSub.HookCollectionCatalog import HookCollectionCatalog
 
 class Index:
-    def LoadViews(self):
+    def LoadViews(self, hookCatalog, hookColCatalog):
         self.Content = ContentViewClass()
-        self.Content.ContentView.addWidget(HookViewClass())
-        self.Content.ContentView.addWidget(HookCollectionViewClass())
+        self.Content.ContentView.addWidget(HookViewClass(hookCatalog))
+        self.Content.ContentView.addWidget(HookCollectionViewClass(hookCatalog, hookColCatalog))
         self.Content.ContentView.addWidget(LivePacketView())
         self.Content.ContentView.addWidget(PCAPView())
 
         return self.Content
 
 class EventHandler:
-    def __init__(self):
+    def __init__(self, hookCatalog, hookColCatalog):
         super().__init__()
-        self.Content = Index().LoadViews()
+        self.Content = Index().LoadViews(hookCatalog, hookColCatalog)
         self.OptionView = OptionViewClass()
         self.OptioButtonHandler()
 
@@ -74,11 +75,11 @@ class ContentViewClass(QWidget):
         super().__init__()
         self.setWindowTitle("Content")
         # Awakens and stores location of HookCollectionViewClass
-        self.VHookCollection = HookCollectionViewClass()
-        # Awakens and stores location of PcapViewClass
-        self.VPcap = PCAPView()
-        self.VHook = HookViewClass()
-        self.VPacket = LivePacketView()
+        #self.VHookCollection = HookCollectionViewClass()
+        ## Awakens and stores location of PcapViewClass
+        #self.VPcap = PCAPView()
+        #self.VHook = HookViewClass()
+        #self.VPacket = LivePacketView()
         #Calls function to begging making the view
         self.initUI()
 
@@ -89,24 +90,26 @@ class ContentViewClass(QWidget):
 
 class HookCollectionViewClass(QWidget):
     def __init__(self):
-        super().__init__()
+        super().__init__(hookCatalog, hookColCatalog)
         #Calls function to begging making the view
         self.setStyleSheet('QWidget { font: 20px }')
         self.HookCollectionView = QGridLayout(self)
+        self.hookCatalog = hookCatalog
+        self.hookColCatalog = hookColCatalog
         self.initUI()
 
     def initUI(self):
         # --------------------------
         #TODO self.collectionCatalog = 
         self.addHookButton = QPushButton("+Hook Collection")
-        self.addHookButton.clicked.connect(self.openCreateEditHookCol)
+        self.addHookButton.clicked.connect(self.openCreateHookCol)
         self.editHookButton = QPushButton("Edit")
-        self.editHookButton.clicked.connect(self.openCreateEditHookCol)
+        self.editHookButton.clicked.connect(self.openEditHookCol)
         self.deleteHookButton = QPushButton("Delete")
         self.deleteHookButton.clicked.connect(self.deleteHookCol)
         self.searchLabel = QLabel("Search")
         self.searchBox = QLineEdit()
-        self.searchBox.textChanged.connect(self.searchCollection)
+        self.searchBox.textChanged.connect(self.searchHookCol)
 
         self.layout = QGridLayout()
         self.layout.addWidget(self.addHookButton, 1, 0)
@@ -144,27 +147,62 @@ class HookCollectionViewClass(QWidget):
         self.HookCollectionView.addLayout(self.layout, 0, 0, 1, 1)
         self.setLayout(self.HookCollectionView)
         
-    def openCreateEditHookCol(self):
-        print("Hi")
-        hookColEditor = HookCol_Overlay(self)
-        hookColEditor.show()
+    #def openCreateEditHookCol(self):
+        #print("Hi")
+        #hookColEditor = HookCol_Overlay(self)
+        #hookColEditor.show()
+
+    def openCreateHookCol(self):
+        hookEditor = HookCol_Overlay(self, self.hookCatalog)
+        hookEditor.show()
+        
+    def openEditHookCol(self):
+        if self.HookCollectionPropertiesArea5.selectedItems():
+            deleting = self.HookCollectionPropertiesArea5.selectedItems()
+            for item in deleting:
+                index = int(item.text(3))
+                hookEditor = Edit_HookCol_Overlay(self, self.hookCatalog, self.hookCatalog.hookCatalog[index], index)
+                hookEditor.show()
         
     def deleteHookCol(self):
-        print("Delete")
+        if self.HookCollectionPropertiesArea5.selectedItems():
+            deleting = self.HookCollectionPropertiesArea5.selectedItems()
+            for item in deleting:
+                index = int(item.text(3))
+                self.hookCatalog.removeHook(self.hookCatalog.hookCatalog[index])
+            self.updateView()
         
-    def searchCollection(self, target):
+    def searchHookCol(self, target):
         print(target)
+        if target == '':
+            self.updateView()
+            
+        else:
+            self.HookCollectionPropertiesArea5.clear()
+            searchResults = self.hookCatalog.searchCatalog(self.hookCatalog, target)
+            for item in searchResults:
+                self.dummy = QTreeWidgetItem([item.name, item.description, str(item.association), str(item.index)])
+                self.HookCollectionPropertiesArea5.addTopLevelItem(self.dummy)
+    
+    def updateView(self):
+        self.HookCollectionPropertiesArea5.clear()
+        index = 0
+        for item in self.hookCatalog.hookCatalog:
+            item.index = index
+            self.dummy = QTreeWidgetItem([item.name, item.description, str(item.association), str(index)])
+            self.HookCollectionPropertiesArea5.addTopLevelItem(self.dummy)
+            index += 1
 
 class HookViewClass(QWidget):
-    def __init__(self):
+    def __init__(self, hookCatalog):
         super().__init__()        #Calls function to begging making the view
         self.setStyleSheet('QWidget { font: 20px }')
         self.HookView = QGridLayout(self)
+        self.hookCatalog = hookCatalog
         self.initUI()
 
     def initUI(self):
         # --------------------------
-        self.hookCatalog = HookCatalog()
         self.addHookButton = QPushButton("+Hook")
         self.addHookButton.clicked.connect(self.openCreateHook)
         self.editHookButton = QPushButton("Edit")
@@ -207,8 +245,8 @@ class HookViewClass(QWidget):
         
     def openEditHook(self):
         if self.HookPropertiesArea5.selectedItems():
-            deleting = self.HookPropertiesArea5.selectedItems()
-            for item in deleting:
+            editing = self.HookPropertiesArea5.selectedItems()
+            for item in editing:
                 index = int(item.text(3))
                 hookEditor = Edit_Hook_Overlay(self, self.hookCatalog, self.hookCatalog.hookCatalog[index], index)
                 hookEditor.show()
@@ -248,6 +286,8 @@ class MainViewClass(QFrame):
         #Set the Main window size ::: setGreometry(Location X, Location Y, Size X, Size Y)
         self.setGeometry(300, 100, 1100, 600)
         self.setWindowTitle("Network Traffic Protocol System")
+        self.hookCatalog = HookCatalog()
+        self.hookColCatalog = HookCollectionCatalog()
         #Calls function to begging making the view
         self.initUI()
 
@@ -258,7 +298,7 @@ class MainViewClass(QFrame):
         self.setLayout(self.MainView)
 
     def LoadViews(self):
-        Evnt = EventHandler()
+        Evnt = EventHandler(self.hookCatalog, self.hookColCatalog)
         self.MainView.addWidget(Evnt.get_Option(), 0, 0, 0, 1)
         self.MainView.addWidget(Evnt.Content, 1, 1, 1, 5)
 
