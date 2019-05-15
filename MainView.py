@@ -4,7 +4,7 @@ from PyQt5 import  QtGui
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 import sys
 from PacketView import LivePacketView, PCAPView
-from Create_Edit_Hook_Overlay import Hook_Overlay
+from Create_Edit_Hook_Overlay import Hook_Overlay, Edit_Hook_Overlay
 from Create_Edit_HookCollection_Overlay import HookCol_Overlay
 from HookSub.HookCatalog import HookCatalog
 
@@ -166,9 +166,9 @@ class HookViewClass(QWidget):
         # --------------------------
         self.hookCatalog = HookCatalog()
         self.addHookButton = QPushButton("+Hook")
-        self.addHookButton.clicked.connect(self.openCreateEditHook)
+        self.addHookButton.clicked.connect(self.openCreateHook)
         self.editHookButton = QPushButton("Edit")
-        self.editHookButton.clicked.connect(self.openCreateEditHook)
+        self.editHookButton.clicked.connect(self.openEditHook)
         self.deleteHookButton = QPushButton("Delete")
         self.deleteHookButton.clicked.connect(self.deleteHook)
         self.searchLabel = QLabel("Search")
@@ -188,20 +188,11 @@ class HookViewClass(QWidget):
         self.HookPropertiesArea5 = QTreeWidget(self)
         # self.HookPropertiesArea5.setStyleSheet('QWidget { font: 29px }')
         self.HookPropertiesArea5.setHeaderLabels(["Hook", 'Description', 'Association to Hook Collection', 'Catalog Position'])
+        #self.HookPropertiesArea5.hideColumn(3)
         self.HookPropertiesArea5.setAlternatingRowColors(True)
         self.HookPropertiesArea5.setSortingEnabled(True)
         self.HookPropertiesArea5.setFixedWidth(1000)
         self.HookPropertiesArea5.resizeColumnToContents(1)
-
-
-        ## # Adds widgets to PcapView( a vertical Box Layout) in Queue form
-        #self.test5 = QTreeWidgetItem(["Hook1", "Description_of_Hook", "0"])
-        #self.test55 = QTreeWidgetItem()
-        #self.HookPropertiesArea5.addTopLevelItem(self.test5)
-        
-        #self.test6 = QTreeWidgetItem(["Hook3", "cription_of_Hook", "1"])
-        #self.HookPropertiesArea5.addTopLevelItem(self.test6)
-        # self.HookPropertiesArea5.setItemWidget(self.test5, 0, self.btn5)
 
         self.HookView.addWidget(self.HookPropertiesArea5, 1, 0, 1, 1)
         self.HookView.addLayout(self.layout, 0, 0, 1, 1)
@@ -210,27 +201,43 @@ class HookViewClass(QWidget):
         self.HookPropertiesArea5.adjustSize()
         self.setLayout(self.HookView)
 
-    def openCreateEditHook(self):
-        print("Hi")
+    def openCreateHook(self):
         hookEditor = Hook_Overlay(self, self.hookCatalog)
         hookEditor.show()
-        #self.updateView()
+        
+    def openEditHook(self):
+        if self.HookPropertiesArea5.selectedItems():
+            deleting = self.HookPropertiesArea5.selectedItems()
+            for item in deleting:
+                index = int(item.text(3))
+                hookEditor = Edit_Hook_Overlay(self, self.hookCatalog, self.hookCatalog.hookCatalog[index], index)
+                hookEditor.show()
         
     def deleteHook(self):
-        #if self.HookPropertiesArea5.isItemSelected():
-        deleting = self.HookPropertiesArea5.selectedItems()
-        print(deleting)
-        print(deleting.data())
-        self.HookPropertiesArea5.removeItemWidget(deleting[0], 0)
-        updateView()
+        if self.HookPropertiesArea5.selectedItems():
+            deleting = self.HookPropertiesArea5.selectedItems()
+            for item in deleting:
+                index = int(item.text(3))
+                self.hookCatalog.removeHook(self.hookCatalog.hookCatalog[index])
+            self.updateView()
         
     def searchHook(self, target):
         print(target)
+        if target == '':
+            self.updateView()
+            
+        else:
+            self.HookPropertiesArea5.clear()
+            searchResults = self.hookCatalog.searchCatalog(self.hookCatalog, target)
+            for item in searchResults:
+                self.dummy = QTreeWidgetItem([item.name, item.description, str(item.association), str(item.index)])
+                self.HookPropertiesArea5.addTopLevelItem(self.dummy)
     
     def updateView(self):
         self.HookPropertiesArea5.clear()
         index = 0
         for item in self.hookCatalog.hookCatalog:
+            item.index = index
             self.dummy = QTreeWidgetItem([item.name, item.description, str(item.association), str(index)])
             self.HookPropertiesArea5.addTopLevelItem(self.dummy)
             index += 1

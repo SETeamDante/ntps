@@ -16,6 +16,7 @@ class Hook:
         self.execNum = 0
         self.validHook = False
         self.association = 0
+        self.index = -1
 
     # This method has been tested
     # This method is in charge of deleting the Hook object from the system
