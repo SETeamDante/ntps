@@ -3,28 +3,19 @@ from scapy.all import send
 class PacketList:
     def __init__(self, HookCollection, PcapSystem, Queue):
         self.list = []
-        # self.HookCollection = HookCollection
+        self.HookCollection = HookCollection
         self.PcapSystem = PcapSystem
         self.Queue = Queue
         self.Frame = 0
 
 
     def appendPacket(self, Packet):
-        # if self.HookCollection.triggers(Packet):
-        # if self.HookCollection.drop:
-        #     return
-        # else:
-            # Packet = self.HookCollection.alter(Packet)
         if self.Queue.OverFlow():
             self.Frame += 1
-            self.list.append(Packet)
             self.Queue.add()
+            self.HookCollection.RunFunctionalHooks(Packet)
+            self.list.append(Packet)
 
-        else:
-            if self.Queue.OverFlow():
-                self.Frame += 1
-                self.list.append(Packet)
-                self.Queue.add()
 
     def FowardPacket(self, Frame):
         for i in self.list:

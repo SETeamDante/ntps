@@ -1,6 +1,6 @@
 from scapy.utils import PcapWriter
 from scapy.all import rdpcap
-from Packet import Packet
+from PacketSub.Packet import Packet
 
 
 class PcapClass:

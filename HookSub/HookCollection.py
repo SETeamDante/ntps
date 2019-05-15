@@ -45,3 +45,8 @@ class HookCollection:
         print("Hooks from this collection: \n")
         for i in self.content:
             i.printHook()
+
+    def RunFunctionalHooks(self, pkt):
+        if self.status:
+            for i in self.content:
+                i.RunFunctionalHooks(pkt)
