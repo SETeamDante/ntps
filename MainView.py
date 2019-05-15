@@ -7,21 +7,32 @@ from PacketView import LivePacketView, PCAPView
 from Create_Edit_Hook_Overlay import Hook_Overlay, Edit_Hook_Overlay
 from Create_Edit_HookCollection_Overlay import HookCol_Overlay
 from HookSub.HookCatalog import HookCatalog
+#############################################
+from Controller import  Controller
+from PacketSub.Packet import Packet
+from PacketSub.PacketList import PacketList
+from PacketSub.PcapClass import PcapClass
+from PacketSub.Queueue import Queueue
+from PacketSub.Fuzzer import Fuzzer
+#############################################
+
 
 class Index:
-    def LoadViews(self):
-        self.Content = ContentViewClass()
-        self.Content.ContentView.addWidget(HookViewClass())
-        self.Content.ContentView.addWidget(HookCollectionViewClass())
-        self.Content.ContentView.addWidget(LivePacketView())
-        self.Content.ContentView.addWidget(PCAPView())
+    def LoadViews(self, Controller):
+        self.Controller = Controller
+        self.Content = ContentViewClass(self.Controller)
+        self.Content.ContentView.addWidget(HookViewClass(self.Controller))
+        self.Content.ContentView.addWidget(HookCollectionViewClass(self.Controller))
+        self.Content.ContentView.addWidget(LivePacketView(self.Controller))
+        self.Content.ContentView.addWidget(PCAPView(self.Controller))
 
         return self.Content
 
 class EventHandler:
-    def __init__(self):
+    def __init__(self, Controller):
         super().__init__()
-        self.Content = Index().LoadViews()
+        self.Controller = Controller
+        self.Content = Index().LoadViews(self.Controller)
         self.OptionView = OptionViewClass()
         self.OptioButtonHandler()
 
@@ -68,17 +79,18 @@ class OptionViewClass(QFrame):
         self.setLayout(self.OptionView)
 
 class ContentViewClass(QWidget):
-    def __init__(self):
+    def __init__(self, Controller):
+        self.Controller = Controller
         #Create a new StackedLayout
         self.ContentView = QStackedLayout()
         super().__init__()
         self.setWindowTitle("Content")
         # Awakens and stores location of HookCollectionViewClass
-        self.VHookCollection = HookCollectionViewClass()
+        self.VHookCollection = HookCollectionViewClass(self.Controller)
         # Awakens and stores location of PcapViewClass
-        self.VPcap = PCAPView()
-        self.VHook = HookViewClass()
-        self.VPacket = LivePacketView()
+        self.VPcap = PCAPView(self.Controller)
+        self.VHook = HookViewClass(self.Controller)
+        self.VPacket = LivePacketView(self.Controller)
         #Calls function to begging making the view
         self.initUI()
 
@@ -88,8 +100,9 @@ class ContentViewClass(QWidget):
 
 
 class HookCollectionViewClass(QWidget):
-    def __init__(self):
+    def __init__(self, Controller):
         super().__init__()
+        self.Controller = Controller
         #Calls function to begging making the view
         self.setStyleSheet('QWidget { font: 20px }')
         self.HookCollectionView = QGridLayout(self)
@@ -156,8 +169,9 @@ class HookCollectionViewClass(QWidget):
         print(target)
 
 class HookViewClass(QWidget):
-    def __init__(self):
+    def __init__(self, Controller):
         super().__init__()        #Calls function to begging making the view
+        self.Controller = Controller
         self.setStyleSheet('QWidget { font: 20px }')
         self.HookView = QGridLayout(self)
         self.initUI()
@@ -243,8 +257,9 @@ class HookViewClass(QWidget):
             index += 1
         
 class MainViewClass(QFrame):
-    def __init__(self):
+    def __init__(self, Controller):
         super().__init__()
+        self.Controller = Controller
         #Set the Main window size ::: setGreometry(Location X, Location Y, Size X, Size Y)
         self.setGeometry(300, 100, 1100, 600)
         self.setWindowTitle("Network Traffic Protocol System")
@@ -258,7 +273,7 @@ class MainViewClass(QFrame):
         self.setLayout(self.MainView)
 
     def LoadViews(self):
-        Evnt = EventHandler()
+        Evnt = EventHandler(self.Controller)
         self.MainView.addWidget(Evnt.get_Option(), 0, 0, 0, 1)
         self.MainView.addWidget(Evnt.Content, 1, 1, 1, 5)
 
@@ -266,7 +281,15 @@ class MainViewClass(QFrame):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setStyle('Fusion')
-    Main = MainViewClass()
+    ################
+    Queueue = Queueue()
+    PcapClass = PcapClass()
+    pktList = PacketList(1, PcapClass, Queueue)
+    Fuzzer = Fuzzer(pktList)
+    ################
+    Controller = Controller(pktList, Queueue, PcapClass, Fuzzer)
+    ################
+    Main = MainViewClass(Controller)
     #Displays the MainView QFrame
     Main.show()
     #app.exec is necessary to keep the window open even after execution

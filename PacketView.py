@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QEvent, Qt
+from PyQt5.QtCore import QEvent, Qt, pyqtSlot
 from PyQt5.QtWidgets import (QCheckBox, QComboBox, QGridLayout, QGroupBox,
                              QHBoxLayout, QLabel, QLineEdit, QPushButton,
                              QStyle, QStyledItemDelegate, QStyleOptionButton,
@@ -11,6 +11,11 @@ from Proxy_Enabled_Overlay import Proxy_En_Overlay
 class Area(QGroupBox):
     def __init__(self, title=None):
         super().__init__(title)
+
+    @pyqtSlot()
+    def asdadsa(self, index):
+        print(index)
+
 
 class manualPacketManipulation(Area):
     def __init__(self):
@@ -107,11 +112,10 @@ class PacketArea(Area):
         dissected_tab_layout = QHBoxLayout()
         dissected_tab.setLayout(dissected_tab_layout)
 
-        dissected_tab_tree = QTreeWidget()
-        dissected_tab_tree.setHeaderLabels([''])
-        dissected_tab_tree.setItemDelegate(DissectedTabDelegate())
-        dissected_tab_layout.addWidget(dissected_tab_tree)
-
+        self.dissected_tab_tree = QTreeWidget()
+        self.dissected_tab_tree.setHeaderLabels([''])
+        self.dissected_tab_tree.setItemDelegate(DissectedTabDelegate())
+        dissected_tab_layout.addWidget(self.dissected_tab_tree)
         layers = [
             "Frame XXX: 74 bytes on wire (592 bits), 74 bytes captured " +
             "(592 bits) on interface 0",
@@ -120,9 +124,12 @@ class PacketArea(Area):
             "Internet Control Message Protocol",
             "Transmission Control Protocol, Src Port: 55394 (55394), Dst " +
             "Port:80 (80), Seq:0 Len:0"]
+        parents = []
         for i in range(4):
-            parent = QTreeWidgetItem(dissected_tab_tree)
+            parent = QTreeWidgetItem(self.dissected_tab_tree)
+            # print(parent.selectionModel())
             parent.setText(0, "Frame 71{}: frame, eth, tcp".format(4 + i))
+            parents.append(parent)
             for layer in layers:
                 child = QTreeWidgetItem(parent)
                 child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
@@ -163,6 +170,13 @@ class PacketArea(Area):
 
         hex_tab_text_box.setReadOnly(True)
         hex_tab_layout.addWidget(hex_tab_text_box)
+
+
+
+        self.dissected_tab_tree.itemClicked.connect(lambda: self.asdadsa(self.dissected_tab_tree.currentItem()))
+
+
+
 
 
 class FieldArea(Area):
@@ -294,9 +308,9 @@ class PCAPFileArea(Area):
 
 
 class LivePacketBehaviors(QWidget):
-    def __init__(self):
+    def __init__(self, Controller):
         super().__init__()
-
+        self.Controller = Controller
         layout = QHBoxLayout()
         self.setLayout(layout)
 
@@ -333,13 +347,14 @@ class LivePacketBehaviors(QWidget):
             print("Enabled")
             
     def adjustSize(self, size):
-        print(size)
+        self.Controller.Queueue.ChangeQueueSize(size)
+        print(self.Controller.Queueue.QueueSizePrint())
     
 
 class PacketView(QWidget):
-    def __init__(self, top_widget=None):
+    def __init__(self,Controller, top_widget=None, ):
         super().__init__()
-
+        self.Controller = Controller
         layout = QGridLayout()
         self.setLayout(layout)
 
@@ -354,12 +369,12 @@ class PacketView(QWidget):
         layout.addWidget(manualPacketManipulation(), 4, 0, 1, 1)
 
 class LivePacketView(PacketView):
-    def __init__(self):
-        super().__init__(LivePacketBehaviors())
+    def __init__(self, Controller):
+        super().__init__(Controller,LivePacketBehaviors(Controller))
 
 class PCAPView(PacketView):
-    def __init__(self):
-        super().__init__(PCAPFileArea())
+    def __init__(self, Controller):
+        super().__init__(Controller,PCAPFileArea())
 
 if __name__ == '__main__':
     import sys

@@ -18,14 +18,12 @@ class Catalog(): # The catalog class is ready for integration
     # This method has been tested
     # In charge of looking through all the Hooks/Hook Collection and display a match to the search query
     def searchCatalog(self, list, searchVal):
-        results = []
-        for i in list.hookCatalog:
-            #if i.name == searchVal: 
-            if i.name.find(searchVal) != -1:
-                #i.printHook()
-                results.append(i)
-        
-        return results
+        for i in list:
+            if i.name == searchVal:
+                i.printHook()
+                return
+
+        print("Not found")
 
     # Debuggging tool
     def printCatalog(self, list, type):

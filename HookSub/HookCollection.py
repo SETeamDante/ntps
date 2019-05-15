@@ -18,7 +18,6 @@ class HookCollection:
     def addHookToCollection(self, hook, executionNumber):
         hook.inCollection = True
         hook.execNum = executionNumber
-        hook.association += 1
         self.content.append(hook)
         return
 
