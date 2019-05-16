@@ -40,7 +40,7 @@ class _IPTable:
             subprocess.run(
                 [
                     "iptables",
-                    "-I", "INPUT", "1",  # Insert rule  at beginning of INPUT
+                    "-I", "OUTPUT", "1",  # Insert rule  at beginning of INPUT
                     "-j", "NFQUEUE",  # Send input to NFQUEUE
                 ]
             )
