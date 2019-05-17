@@ -1,22 +1,39 @@
+import atexit
 import subprocess
 from subprocess import DEVNULL
 from tempfile import NamedTemporaryFile
+from typing import Tuple
+
+from pypacker import interceptor
+
+from scapy.layers.inet import IP
+
+from ..Controller import Controller
+from ..PacketSub.Packet import Packet
 
 # Running this ensures iptables-save returns the correct output
 subprocess.run(['iptables', '-L'], stdout=DEVNULL, stderr=DEVNULL)
 
 
-class IPTable:
-    """
-    IPTable manages NTPS' proxy and interceptor behaviors.
-    """
+def verdict_callback(ll_data, ll_proto_id, data: bytes, context: Controller) -> Tuple[bytes, int]:
+    iptable = IPTable()
+    if iptable.isInterceptorOn():
+        Packet(IP(data), iptable.frame, context.pktList, False)
+        iptable.frame += 1
+        return data, interceptor.NF_QUEUE
+    else:
+        return data, interceptor.NF_ACCEPT
+
+
+class _IPTable:
+    _instance = None
 
     def __init__(self):
-        # TODO: Make into a singleton???
         self.proxy_on = False
         self.interceptor_on = False
+        self.interceptor = interceptor.Interceptor()
 
-    def toggleProxy(self):
+    def toggleProxy(self, controller: Controller):
         """
         Toggles proxy on or off. Can only be toggled off if the interceptor is
         off. Restores previous iptables config when toggled off.
@@ -25,7 +42,7 @@ class IPTable:
         @requires not self.isInterceptorOn()
 
         @ensures self.isProxyOn() is not \\old(self.isProxyOn())
-        @ensures (* When turning on the proxy, the \old(iptables config) is
+        @ensures (* When turning on the proxy, the \\old(iptables config) is
             backed up *)
         @ensures (* When turning off the proxy, the iptables config is restored
             with previously backed up rules *)
@@ -43,12 +60,14 @@ class IPTable:
             subprocess.run(
                 [
                     "iptables",
-                    "-I", "INPUT", "1",  # Insert rule  at beginning of INPUT
+                    "-I", "OUTPUT", "1",  # Insert rule  at beginning of INPUT
                     "-j", "NFQUEUE",  # Send input to NFQUEUE
-                    "--queue-num", "0",  # Use only a single queue
-                    "--queue-bypass",  # Forward packets when not intercepting
                 ]
             )
+
+            # Start interceptor
+            self.interceptor.start(verdict_callback, queue_ids=[0], ctx=controller)
+            self.frame = 1
 
         else:
             # Seek to beginning of temporary file to read saved rules
@@ -60,6 +79,9 @@ class IPTable:
             # Close and delete temporary file and delete its reference
             self.iptables_rules.close()
             del self.iptables_rules
+
+            # Stop interceptor
+            self.interceptor.stop()
 
         # Toggle proxy state
         self.proxy_on = not self.proxy_on
@@ -104,8 +126,33 @@ class IPTable:
         return self.interceptor_on
 
 
+def IPTable() -> _IPTable:
+    """
+    Returns IPTable as a singleton
+    """
+    if _IPTable._instance == None:
+        _IPTable._instance = _IPTable()
+    return _IPTable._instance
+
+
+def restore_proxy():
+    """
+    Callback so that when NTPS exits early, proxy is disabled and iptables
+    rules are restored
+    """
+    iptable = IPTable()
+    if iptable.isInterceptorOn():
+        iptable.toggleInterceptor()
+    if iptable.isProxyOn():
+        iptable.toggleProxy()
+
+# Runs callback at end
+atexit.register(restore_proxy)
+
+
 if __name__ == '__main__':
-    def print_iptables_state(iptable: IPTable):
+    def print_iptables_state():
+        iptable = IPTable()
         print(
             f"###### proxy = {iptable.isProxyOn()}",
             f"iceptor = {iptable.isInterceptorOn()} ######",
@@ -116,16 +163,16 @@ if __name__ == '__main__':
 
     # A simple "tester"
     iptable = IPTable()
-    print_iptables_state(iptable)
+    print_iptables_state()
 
     iptable.toggleProxy()
-    print_iptables_state(iptable)
+    print_iptables_state()
 
     iptable.toggleInterceptor()
-    print_iptables_state(iptable)
+    print_iptables_state()
 
     iptable.toggleInterceptor()
-    print_iptables_state(iptable)
+    print_iptables_state()
 
     iptable.toggleProxy()
-    print_iptables_state(iptable)
+    print_iptables_state()
