@@ -46,4 +46,5 @@ class HookCollection:
     def RunFunctionalHooks(self, pkt):
         if self.status:
             for i in self.content:
+                print(i)
                 i.RunFunctionalHooks(pkt)

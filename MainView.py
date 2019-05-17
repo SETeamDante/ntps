@@ -338,7 +338,7 @@ if __name__ == '__main__':
     hookColCatalog = HookCollectionCatalog()
     Queueue = Queueue()
     PcapClass = PcapClass()
-    pktList = PacketList(1, PcapClass, Queueue)
+    pktList = PacketList(hookColCatalog, PcapClass, Queueue)
     Fuzzer = Fuzzer(pktList)
     ################
     Controller = Controller(pktList, Queueue, PcapClass, Fuzzer, hookCatalog, hookColCatalog)

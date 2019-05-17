@@ -1,10 +1,8 @@
-def hook(pktList):
+def hook(pkt):
 
-    for i in range(1, pktList.list.__len__()):
-        pkt = pktList.GetPacket(i)
-        if pkt.hasLayer('TCP'):
-            pktList.DropPacket(i)
-            print("Frame: ", i)
-
-    pktList.UpdateFrames()
+    if pkt.hasLayer('TCP'):
+        pkt.pktList.DropPacket(pkt.Frame)
+        print("Frame: ", pkt.Frame)
+        print("Drop Packet")
+        pkt.pktList.UpdateFrames()
 

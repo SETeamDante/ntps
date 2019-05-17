@@ -27,7 +27,7 @@ class Area(QGroupBox):
 
 class manualPacketManipulation(Area):
     def __init__(self, Controller):
-        super().__init__(Controller)
+        super().__init__('Field Name, Value and Display Format are editable fields')
 
         layout = QHBoxLayout()
         self.setLayout(layout)
@@ -158,7 +158,6 @@ class PacketArea(Area):
         self.dissected_tab_tree.itemClicked.connect(lambda: self.asdadsa(self.dissected_tab_tree.indexOfTopLevelItem(self.dissected_tab_tree.currentItem())))
         
     def updateList(self):
-        print("asdadaaaaaaaaaaaa")
         pkt = self.PacketList[len(self.PacketList) - 1]
         print(pkt.GetLayerListNames())
         parent = QTreeWidgetItem(self.dissected_tab_tree)
@@ -348,13 +347,13 @@ class LivePacketBehaviors(QWidget):
         ipt = iptable.IPTable()
         if (i == 0):
             if ipt.isProxyOn():
-                ipt.toggleProxy(self.Controller)
+                ipt.toggleProxy(self.Controller.pktList)
             ProxyDisOverlay = Proxy_Dis_Overlay()
             self.interception_combo_box.setEnabled(False)
             
         if (i == 1):
             if not ipt.isProxyOn():
-                ipt.toggleProxy(self.Controller)
+                ipt.toggleProxy(self.Controller.pktList)
             self.interception_combo_box.setEnabled(True)
             ProxyEnOverlay = Proxy_En_Overlay()
             
@@ -373,9 +372,7 @@ class LivePacketBehaviors(QWidget):
             self.proxy_combo_box.setEnabled(False)
             
     def adjustSize(self, size):
-        print("beep")
-        test = rdpcap("PacketSub/test.pcap")
-        Packet(test[0],1,self.Controller.pktList, False)
+        self.Controller.Queueue.ChangeQueueSize(int(size))
 
 class PacketView(QWidget):
     def __init__(self, Controller, top_widget=None):

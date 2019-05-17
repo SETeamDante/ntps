@@ -10,14 +10,17 @@ from scapy.layers.inet import IP
 
 from Controller import Controller
 from PacketSub.Packet import Packet
+from scapy.all import raw
 
-
-def verdict_callback(ll_data, ll_proto_id, data: bytes, context: Controller) -> Tuple[bytes, int]:
+def verdict_callback(ll_data, ll_proto_id, data: bytes, Controller) -> Tuple[bytes, int]:
     iptable = IPTable()
     if iptable.isInterceptorOn():
         print(IP(data).show(dump=True))
-        #Packet(IP(data), iptable.frame, context.pktList, False)
+        h = IP(data)
+
+        Packet(h, iptable.frame, Controller, False)
         iptable.frame += 1
+
         return data, interceptor.NF_ACCEPT
     else:
         return data, interceptor.NF_ACCEPT

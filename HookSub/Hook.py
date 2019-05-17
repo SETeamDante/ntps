@@ -31,8 +31,8 @@ class Hook:
         if self.validHook is True and self.inCollection is True:
             print("Hook %s is enabled" % self.name)
             self.status = True
-            tryHook = self.module.hook
-            self.runHook(tryHook)
+            #tryHook = self.module.hook
+            #self.runHook(tryHook)
         elif self.inCollection is True and self.validHook is False:
             print("Hook %s is not a valid Hook" % self.name)
         else:

@@ -8,17 +8,21 @@ class PacketList:
         self.Queue = Queue
         self.Frame = 0
         self.PacketArea = []
+        self.Ignore = False
 
 
     def appendPacket(self, Packet):
         if self.Queue.OverFlow():
             self.Frame += 1
             self.Queue.add()
-            #self.HookCollection.RunFunctionalHooks(Packet)
             self.list.append(Packet)
-            for j in self.PacketArea:
-                j.updatePacketList(Packet)
-                j.updateList()
+            self.HookCollection.RunFunctionalHooks(Packet)
+            if self.Ignore == False:
+                for j in self.PacketArea:
+                    j.updatePacketList(Packet)
+                    j.updateList()
+            else:
+                self.Ignore = False
 
     def SetPacketAreaRef(self, Area):
         self.PacketArea.append(Area)
@@ -33,14 +37,12 @@ class PacketList:
                 self.Queue.RemoveQueue()
 
     def DropPacket(self, Frame):
+        self.Ignore = True
         for i in self.list:
             if i.GetFrame() == Frame:
-                if i.GetIsPcap():
-                    pass
-                else:
-                    print("boo[")
-                    self.list.remove(i)
-                    self.Queue.RemoveQueue()
+                print("Packet Drop")
+                self.list.remove(i)
+                self.Queue.RemoveQueue()
 
     def GetPacket(self, Frame):
         for i in self.list:

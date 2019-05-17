@@ -6,6 +6,7 @@ class Packet:
     def __init__(self, pkt, Frame, PktList, IsPcap):
         self.Frame = Frame
         self.pkt = pkt
+        self.pktList = PktList
         self.layerList = LayerList(self.pkt)
         PktList.appendPacket(self)
         self.IsPcap = IsPcap
@@ -77,13 +78,17 @@ class LayerList():
         self.List = []
         self.List = self.getLayerList()
 
+
     def getLayerList(self):
         split_pkt = self.spliting()
         counter = 0
+
         for i in split_pkt[1:]:
+
             layer = Layer(i, counter)
             self.List.append(layer)
             counter += 1
+
         return self.List
 
     def getLayer(self, layer):
@@ -106,8 +111,11 @@ class Layer():
     def __init__(self, lyr, pos):
         self.lyr = lyr
         self.lyr_name = lyr.split("]###")[0].strip()
+
         self.pos = pos
+
         self.fieldList = FieldList(self.lyr)
+
 
 class FieldList():
     def __init__(self, lyr):
@@ -119,8 +127,8 @@ class FieldList():
         split_lyr = self.spliting()
         counter = 0
         for i in split_lyr[1:]:
-            if i == '' or i == '     \options   \\' or i == '           \qd        \\' or i== '            |'\
-                    or i == '           \\'+'an'+'        \\' or i == '           \options   \\':
+            if i == '' or i == '     \options   \\' or i == '        \qd        \\'or i == '           \qd        \\' or i== '            |'\
+                    or i == '           \\'+'an'+'        \\' or i == '           \options   \\' or i == '  \options   \\' or i == '         |':
                 continue
             field = Field(i, counter)
             self.List.append(field)
@@ -146,9 +154,11 @@ class FieldList():
 class Field():
     def __init__(self, fld, pos):
         self.fld = fld
-        self.fld_name = fld.split("= ")[0].strip()
-        self.pos = pos
-        self.val = fld.split("= ")[1]
+        if(len(fld)>1 and fld.split("= ")[1] != None):
+            self.fld_name = fld.split("= ")[0].strip()
+            self.pos = pos
+
+            self.val = fld.split("= ")[1]
 
 if __name__ == '__main__':
     test = rdpcap("test.pcap")
