@@ -2,17 +2,24 @@ import atexit
 import subprocess
 from subprocess import DEVNULL
 from tempfile import NamedTemporaryFile
+from typing import Tuple
 
 from pypacker import interceptor
+
+from scapy.layers.inet import IP
+
+from ..Controller import Controller
+from ..PacketSub.Packet import Packet
 
 # Running this ensures iptables-save returns the correct output
 subprocess.run(['iptables', '-L'], stdout=DEVNULL, stderr=DEVNULL)
 
 
-def verdict_callback(ll_data, ll_proto_id, data, context):
+def verdict_callback(ll_data, ll_proto_id, data: bytes, context: Controller) -> Tuple[bytes, int]:
     iptable = IPTable()
     if iptable.isInterceptorOn():
-        # TODO: Add packet to system here
+        Packet(IP(data), iptable.frame, context.pktList, False)
+        iptable.frame += 1
         return data, interceptor.NF_QUEUE
     else:
         return data, interceptor.NF_ACCEPT
@@ -26,7 +33,7 @@ class _IPTable:
         self.interceptor_on = False
         self.interceptor = interceptor.Interceptor()
 
-    def toggleProxy(self):
+    def toggleProxy(self, controller: Controller):
         """
         Toggles proxy on or off. Can only be toggled off if the interceptor is
         off. Restores previous iptables config when toggled off.
@@ -59,7 +66,8 @@ class _IPTable:
             )
 
             # Start interceptor
-            self.interceptor.start(verdict_callback, queue_ids=[0])
+            self.interceptor.start(verdict_callback, queue_ids=[0], ctx=controller)
+            self.frame = 1
 
         else:
             # Seek to beginning of temporary file to read saved rules
