@@ -15,10 +15,10 @@ class PacketList:
             self.Frame += 1
             self.Queue.add()
             # self.HookCollection.RunFunctionalHooks(Packet)
-
             self.list.append(Packet)
             for j in self.PacketArea:
-                j.updateList(Packet)
+                j.updatePacketList(Packet)
+                j.updateList()
 
 
 
