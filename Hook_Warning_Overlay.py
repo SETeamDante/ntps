@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 
-class Q_Err_Overlay(QWidget):
+class Hook_Warning_Overlay(QWidget):
 
     def __init__(self):
         super().__init__()
@@ -22,8 +22,4 @@ class Q_Err_Overlay(QWidget):
                                                                 "This hook does not follow "
                                                                 "the proper guidelines.",
                                                                 QMessageBox.Ok)
-        
-#if __name__ == '__main__':
-    #app = QApplication(sys.argv)
-    #ex = Q_Err_Overlay()
-    #sys.exit(app.exec_())
+
