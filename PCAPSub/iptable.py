@@ -3,8 +3,19 @@ import subprocess
 from subprocess import DEVNULL
 from tempfile import NamedTemporaryFile
 
+from pypacker import interceptor
+
 # Running this ensures iptables-save returns the correct output
 subprocess.run(['iptables', '-L'], stdout=DEVNULL, stderr=DEVNULL)
+
+
+def verdict_callback(ll_data, ll_proto_id, data, context):
+    iptable = IPTable()
+    if iptable.isInterceptorOn():
+        # TODO: Add packet to system here
+        return data, interceptor.NF_QUEUE
+    else:
+        return data, interceptor.NF_ACCEPT
 
 
 class _IPTable:
@@ -13,6 +24,7 @@ class _IPTable:
     def __init__(self):
         self.proxy_on = False
         self.interceptor_on = False
+        self.interceptor = interceptor.Interceptor()
 
     def toggleProxy(self):
         """
@@ -46,6 +58,9 @@ class _IPTable:
                 ]
             )
 
+            # Start interceptor
+            self.interceptor.start(verdict_callback, queue_ids=[0])
+
         else:
             # Seek to beginning of temporary file to read saved rules
             self.iptables_rules.seek(0)
@@ -56,6 +71,9 @@ class _IPTable:
             # Close and delete temporary file and delete its reference
             self.iptables_rules.close()
             del self.iptables_rules
+
+            # Stop interceptor
+            self.interceptor.stop()
 
         # Toggle proxy state
         self.proxy_on = not self.proxy_on
