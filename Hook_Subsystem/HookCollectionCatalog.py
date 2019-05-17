@@ -1,4 +1,4 @@
-from Catalog import Catalog
+from Hook_Subsystem.Catalog import Catalog
 
 
 class HookCollectionCatalog(Catalog):
