@@ -155,8 +155,8 @@ if __name__ == '__main__':
     def print_iptables_state():
         iptable = IPTable()
         print(
-            f"###### proxy = {iptable.isProxyOn()}",
-            f"iceptor = {iptable.isInterceptorOn()} ######",
+            "###### proxy = {iptable.isProxyOn()}",
+            "iceptor = {iptable.isInterceptorOn()} ######",
             sep='\t',
         )
         subprocess.run(['iptables', '-L'])
