@@ -17,7 +17,8 @@ class PacketList:
             #self.HookCollection.RunFunctionalHooks(Packet)
             self.list.append(Packet)
             for j in self.PacketArea:
-                j.updateList(Packet)
+                j.updatePacketList(Packet)
+                j.updateList()
 
     def SetPacketAreaRef(self, Area):
         self.PacketArea.append(Area)

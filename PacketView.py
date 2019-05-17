@@ -17,18 +17,11 @@ class Area(QGroupBox):
         self.PacketList = []
         self.Controller = Controller
     
-    @pyqtSlot()
-    def asdadsa(self, index):
-        print(index)
-        index.removeChild(index)
-        index = None
-        print("asdasd")
-    
     def SetPacketList(self, pkt):
         self.PacketList.append(pkt)
 
-    def updateList(self, Packet):
-        pass
+    def updatePacketList(self, Packet):
+        self.PacketList.append(Packet)
 
 class manualPacketManipulation(Area):
     def __init__(self, Controller):
@@ -111,6 +104,8 @@ class DissectedTabDelegate(QStyledItemDelegate):
 class PacketArea(Area):
     def __init__(self, Controller):
         super().__init__('Packet Area')
+        self.hex = None
+        self.binary = None
         self.Controller = Controller
         self.Controller.pktList.SetPacketAreaRef(self)
 
@@ -140,12 +135,10 @@ class PacketArea(Area):
         binary_tab_layout.setContentsMargins(5, 5, 5, 5)
         binary_tab.setLayout(binary_tab_layout)
 
-        binary_tab_text_box = QTextEdit()
-        binary_tab_text_box.setPlainText("\\x00\\x02\\x157\\xa2D\\x00\\xae\\xf3R\\xaa\\xd1\\x08\\x00E\\x00\\x00C\\x00\\x01\\x00\\x00@\\x06x<\\xc0\n"
-                                         "\\xa8\\x05\\x15B#\\xfa\\x97\\x00\\x14\\00P\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00P\\x02\\x00\n" 
-                                         "\\xbb9\\x00\\x00GET /index.html HTTP/1.0 \\n \\n\n")
-        binary_tab_text_box.setReadOnly(True)
-        binary_tab_layout.addWidget(binary_tab_text_box)
+        self.binary_tab_text_box = QTextEdit()
+        self.binary_tab_text_box.setPlainText(self.hex)
+        self.binary_tab_text_box.setReadOnly(True)
+        binary_tab_layout.addWidget(self.binary_tab_text_box)
 
         # Hex Tab Formatting TODO: Deserves to be in own class
         hex_tab = QWidget()
@@ -155,21 +148,14 @@ class PacketArea(Area):
         hex_tab_layout.setContentsMargins(5, 5, 5, 5)
         hex_tab.setLayout(hex_tab_layout)
 
-        hex_tab_text_box = QTextEdit()
-        hex_tab_text_box.setPlainText("00 00 00 00 E0 1E A7 05 6F 00 10 ........\n"
-                                      "00 00 08 5A A0 B9 12 08 00 46 00 ........\n"
-                                      "00 00 10 03 68 00 00 00 00 0A 2E ........\n"
-                                      "00 00 18 EE 33 0F 19 08 7F 0F 19 ........\n"
-                                      "00 00 20 03 80 94 04 00 00 10 01 ........\n"
-                                      "00 00 28 16 A2 0A 00 03 50 00 0C ........\n"
-                                      "00 00 30 01 01 0F 19 03 80 11 01 ........\n")
+        self.hex_tab_text_box = QTextEdit()
+        self.hex_tab_text_box.setPlainText(self.binary)
+        self.hex_tab_text_box.setReadOnly(True)
+        hex_tab_layout.addWidget(self.hex_tab_text_box)
 
-        hex_tab_text_box.setReadOnly(True)
-        hex_tab_layout.addWidget(hex_tab_text_box)
-        self.dissected_tab_tree.itemClicked.connect(lambda: self.asdadsa(self.dissected_tab_tree.currentItem()))
+        self.dissected_tab_tree.itemClicked.connect(lambda: self.asdadsa(self.dissected_tab_tree.indexOfTopLevelItem(self.dissected_tab_tree.currentItem())))
         
-    def updateList(self, Packet):
-        self.PacketList.append(Packet)
+    def updateList(self):
         print("asdadaaaaaaaaaaaa")
         pkt = self.PacketList[len(self.PacketList) - 1]
         print(pkt.GetLayerListNames())
@@ -178,12 +164,24 @@ class PacketArea(Area):
         parent.setText(0, "Frame " + str(pkt.GetFrame()) + ": " + str(lyr))
         layer = []
         for i in lyr:
-            layer.append(i +" = " +str(Packet.GetFieldListNamesAndValues(i)))
+            layer.append(i +" = " +str(pkt.GetFieldListNamesAndValues(i)))
         for layer in layer:
             child = QTreeWidgetItem(parent)
             child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
             child.setText(0, layer)
             child.setCheckState(0, Qt.Unchecked)
+            
+    @pyqtSlot()
+    def asdadsa(self, index):
+        # index.removeChild(index)
+        # index = None
+        # print("asdasd")
+        self.hex_tab_text_box.setPlainText(self.PacketList[index].GetHexDump())
+        binary = self.PacketList[index].GetBinary()
+
+        # binary = binary.replace("/", "-")
+        # print(binary)
+        # self.binary_tab_text_box.setPlainText(binary)
 
 
 class FieldArea(Area):
