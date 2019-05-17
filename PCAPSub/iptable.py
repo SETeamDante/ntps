@@ -11,9 +11,6 @@ from scapy.layers.inet import IP
 from Controller import Controller
 from PacketSub.Packet import Packet
 
-# Running this ensures iptables-save returns the correct output
-subprocess.run(['iptables', '-L'], stdout=DEVNULL, stderr=DEVNULL)
-
 
 def verdict_callback(ll_data, ll_proto_id, data: bytes, context: Controller) -> Tuple[bytes, int]:
     iptable = IPTable()
@@ -33,6 +30,9 @@ class _IPTable:
         self.proxy_on = False
         self.interceptor_on = False
         self.interceptor = interceptor.Interceptor()
+
+        # Running this ensures iptables-save returns the correct output
+        subprocess.run(['iptables', '-L'], stdout=DEVNULL, stderr=DEVNULL)
 
     def toggleProxy(self, controller: Controller):
         """
