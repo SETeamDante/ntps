@@ -8,8 +8,8 @@ from pypacker import interceptor
 
 from scapy.layers.inet import IP
 
-from ..Controller import Controller
-from ..PacketSub.Packet import Packet
+from Controller import Controller
+from PacketSub.Packet import Packet
 
 # Running this ensures iptables-save returns the correct output
 subprocess.run(['iptables', '-L'], stdout=DEVNULL, stderr=DEVNULL)

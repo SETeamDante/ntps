@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (QCheckBox, QComboBox, QGridLayout, QGroupBox,
                              QTreeWidgetItem, QToolButton, QVBoxLayout, QWidget)
 from Proxy_Disabled_Overlay import Proxy_Dis_Overlay
 from Proxy_Enabled_Overlay import Proxy_En_Overlay
+from PCAPSub import iptable
 from PacketSub.Packet import Packet
 from scapy.all import rdpcap
 
@@ -326,6 +327,7 @@ class LivePacketBehaviors(QWidget):
 
         self.interception_combo_box = QComboBox()
         self.interception_combo_box.addItems(['Disabled', 'Enabled'])
+        self.interception_combo_box.setEnabled(False)
         self.interception_combo_box.currentIndexChanged.connect(self.toggleInterception)
 
         self.queue_text_box = QLineEdit('100')
@@ -339,18 +341,32 @@ class LivePacketBehaviors(QWidget):
         layout.addWidget(self.queue_text_box)
         
     def toggleProxy(self, i):
+        ipt = iptable.IPTable()
         if (i == 0):
+            if ipt.isProxyOn():
+                ipt.toggleProxy(self.Controller)
             ProxyDisOverlay = Proxy_Dis_Overlay()
+            self.interception_combo_box.setEnabled(False)
             
         if (i == 1):
+            if not ipt.isProxyOn():
+                ipt.toggleProxy(self.Controller)
+            self.interception_combo_box.setEnabled(True)
             ProxyEnOverlay = Proxy_En_Overlay()
             
     def toggleInterception(self, i):
+        ipt = iptable.IPTable()
         if (i == 0):
+            if ipt.isInterceptorOn():
+                ipt.toggleInterceptor()
             print("Disabled")
+            self.proxy_combo_box.setEnabled(True)
             
         if (i == 1):
+            if not ipt.isInterceptorOn():
+                ipt.toggleInterceptor()
             print("Enabled")
+            self.proxy_combo_box.setEnabled(False)
             
     def adjustSize(self, size):
         print("beep")
