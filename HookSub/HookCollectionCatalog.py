@@ -1,4 +1,4 @@
-from Catalog import Catalog
+from HookSub.Catalog import Catalog
 
 
 class HookCollectionCatalog(Catalog):
@@ -27,9 +27,13 @@ class HookCollectionCatalog(Catalog):
     # Method tested
     # Using search function from Catalog super class
     def searchHookCollection(self):
-        hookCollectionName = input("Hook Collection name you want to search: ")
+        #hookCollectionName = input("Hook Collection name you want to search: ")
         super().searchCatalog(self.hookCollectionCatalog, hookCollectionName)
 
     # Method tested (Debugging tool)
     def printHCC(self):
         super().printCatalog(self.hookCollectionCatalog, False)
+
+    def RunFunctionalHooks(self, pkt):
+        for i in self.hookCollectionCatalog:
+            i.RunFunctionalHooks(pkt)

@@ -27,7 +27,7 @@ class Hook:
     # This method would enabled the hook to be executed
     # Possible solution running hooks on their own threads
     # Need to fix
-    def activateHook(self):
+    def activateHook(self, pkt):
         if self.validHook is True and self.inCollection is True:
             print("Hook %s is enabled" % self.name)
             self.status = True
@@ -42,10 +42,10 @@ class Hook:
         print("%s is disabled" % self.name)
         self.status = False
 
-    def runHook(self, hookMethod):
+    def runHook(self, hookMethod, pkt):
         print("%s is running" % self.name)
         if self.status is True:
-            print(hookMethod(5, 5))
+            print(hookMethod(pkt))
 
     def checkHookProtocol(self):
         try:
@@ -71,3 +71,8 @@ class Hook:
         print("Status: ", self.status)
         print("In collection: ", self.inCollection)
         print("Execution Number: ", self.execNum)
+
+    def RunFunctionalHooks(self, pkt):
+        if self.status:
+            hookmdl = self.module.hook
+            self.runHook(hookmdl, pkt)
