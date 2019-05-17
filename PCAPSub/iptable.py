@@ -18,9 +18,10 @@ subprocess.run(['iptables', '-L'], stdout=DEVNULL, stderr=DEVNULL)
 def verdict_callback(ll_data, ll_proto_id, data: bytes, context: Controller) -> Tuple[bytes, int]:
     iptable = IPTable()
     if iptable.isInterceptorOn():
-        Packet(IP(data), iptable.frame, context.pktList, False)
+        print(IP(data).show(dump=True))
+        #Packet(IP(data), iptable.frame, context.pktList, False)
         iptable.frame += 1
-        return data, interceptor.NF_QUEUE
+        return data, interceptor.NF_ACCEPT
     else:
         return data, interceptor.NF_ACCEPT
 
