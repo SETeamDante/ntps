@@ -8,6 +8,7 @@ from Proxy_Disabled_Overlay import Proxy_Dis_Overlay
 from Proxy_Enabled_Overlay import Proxy_En_Overlay
 from PCAPSub import iptable
 from PacketSub.Packet import Packet
+from PacketSub.PcapClass import PcapClass
 from scapy.all import rdpcap
 
 
@@ -290,6 +291,7 @@ class PlusMinusButtons(QGroupBox):
 class PCAPFileArea(Area):
     def __init__(self, Controller):
         super().__init__('PCAP File')
+        self.Controller = Controller
 
         layout = QHBoxLayout()
         self.setLayout(layout)
@@ -308,6 +310,8 @@ class PCAPFileArea(Area):
 
     def openPCAP(self):
         print("Opening")
+        self.pcap = PcapClass()
+        self.pcap.LoadPcap(self.pcap_file_text_box.text(), self.Controller.pktList)
 
     def cancelPCAP(self):
         self.pcap_file_text_box.clear()
