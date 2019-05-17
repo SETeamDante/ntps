@@ -73,6 +73,7 @@ class Hook:
 
     def RunFunctionalHooks(self, pkt):
         if self.status:
-            self.activateHook(pkt)
+            hookmdl = self.module.hook
+            self.runHook(hookmdl, pkt)
 
 

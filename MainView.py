@@ -292,5 +292,6 @@ if __name__ == '__main__':
     Main = MainViewClass(Controller)
     #Displays the MainView QFrame
     Main.show()
+
     #app.exec is necessary to keep the window open even after execution
     sys.exit(app.exec_())

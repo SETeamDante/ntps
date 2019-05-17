@@ -6,20 +6,34 @@ from PyQt5.QtWidgets import (QCheckBox, QComboBox, QGridLayout, QGroupBox,
                              QTreeWidgetItem, QToolButton, QVBoxLayout, QWidget)
 from Proxy_Disabled_Overlay import Proxy_Dis_Overlay
 from Proxy_Enabled_Overlay import Proxy_En_Overlay
+from PacketSub.Packet import Packet
+from scapy.all import rdpcap
 
 
 class Area(QGroupBox):
-    def __init__(self, title=None):
+    def __init__(self,Controller, title=None):
         super().__init__(title)
+        self.type = "asd"
+        self.PacketList = []
+        self.Controller = Controller
+
 
     @pyqtSlot()
     def asdadsa(self, index):
-        print(index)
+        index.removeChild(index)
+        index = None
+        print("asdasd")
+
+    def SetPacketList(self, pkt):
+        self.PacketList.append(pkt)
+
+    def updateList(self, Packet):
+        pass
 
 
 class manualPacketManipulation(Area):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, Controller):
+        super().__init__(Controller)
 
         layout = QHBoxLayout()
         self.setLayout(layout)
@@ -45,7 +59,7 @@ class manualPacketManipulation(Area):
         print("Dropping")
 
 class CaptureFilterArea(Area):
-    def __init__(self):
+    def __init__(self, Controller):
         super().__init__('Capture Filter')
 
         layout = QHBoxLayout()
@@ -96,45 +110,33 @@ class DissectedTabDelegate(QStyledItemDelegate):
 
 
 class PacketArea(Area):
-    def __init__(self):
+    def __init__(self, Controller):
         super().__init__('Packet Area')
+        self.Controller = Controller
+        print(self)
+        self.Controller.pktList.SetPacketAreaRef(self)
 
-        layout = QHBoxLayout()
-        self.setLayout(layout)
+
+
+        self.layout = QHBoxLayout()
+        self.setLayout(self.layout)
 
         tab_widget = QTabWidget()
-        layout.addWidget(tab_widget)
+        self.layout.addWidget(tab_widget)
 
         # Dissected Tab Formatting TODO: Deserves to be in own class
-        dissected_tab = QWidget()
-        tab_widget.addTab(dissected_tab, "Dissected")
+        self.dissected_tab = QWidget()
+        tab_widget.addTab(self.dissected_tab, "Dissected")
 
-        dissected_tab_layout = QHBoxLayout()
-        dissected_tab.setLayout(dissected_tab_layout)
+        self.dissected_tab_layout = QHBoxLayout()
+        self.dissected_tab.setLayout(self.dissected_tab_layout)
 
         self.dissected_tab_tree = QTreeWidget()
         self.dissected_tab_tree.setHeaderLabels([''])
         self.dissected_tab_tree.setItemDelegate(DissectedTabDelegate())
-        dissected_tab_layout.addWidget(self.dissected_tab_tree)
-        layers = [
-            "Frame XXX: 74 bytes on wire (592 bits), 74 bytes captured " +
-            "(592 bits) on interface 0",
-            "Ethernet II, Src: Elitegro_dd:12:cd (00:19:21:dd:12:cd), Dst: " +
-            "Broadcom_de:ad:05 [00:10:18:de:ad:05]",
-            "Internet Control Message Protocol",
-            "Transmission Control Protocol, Src Port: 55394 (55394), Dst " +
-            "Port:80 (80), Seq:0 Len:0"]
-        parents = []
-        for i in range(4):
-            parent = QTreeWidgetItem(self.dissected_tab_tree)
-            # print(parent.selectionModel())
-            parent.setText(0, "Frame 71{}: frame, eth, tcp".format(4 + i))
-            parents.append(parent)
-            for layer in layers:
-                child = QTreeWidgetItem(parent)
-                child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
-                child.setText(0, layer)
-                child.setCheckState(0, Qt.Unchecked)
+        self.dissected_tab_layout.addWidget(self.dissected_tab_tree)
+
+
 
         # Binary Tab Formatting TODO: Deserves to be in own class
         binary_tab = QWidget()
@@ -170,17 +172,33 @@ class PacketArea(Area):
 
         hex_tab_text_box.setReadOnly(True)
         hex_tab_layout.addWidget(hex_tab_text_box)
-
-
-
         self.dissected_tab_tree.itemClicked.connect(lambda: self.asdadsa(self.dissected_tab_tree.currentItem()))
+
+
+    def updateList(self, Packet):
+        self.PacketList.append(Packet)
+        print("asdadaaaaaaaaaaaa")
+
+        pkt = self.PacketList[len(self.PacketList) - 1]
+        print(pkt.GetLayerListNames())
+        parent = QTreeWidgetItem(self.dissected_tab_tree)
+        lyr = pkt.GetLayerListNames()
+        parent.setText(0, "Frame " + str(pkt.GetFrame()) + ": " + str(lyr))
+        layer = []
+        for i in lyr:
+            layer.append(i +" = " +str(Packet.GetFieldListNamesAndValues(i)))
+        for layer in layer:
+            child = QTreeWidgetItem(parent)
+            child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
+            child.setText(0, layer)
+            child.setCheckState(0, Qt.Unchecked)
 
 
 
 
 
 class FieldArea(Area):
-    def __init__(self):
+    def __init__(self, Controller):
         super().__init__('Field Area')
 
         layout = QGridLayout()
@@ -193,7 +211,7 @@ class FieldArea(Area):
             layout.addWidget(QCheckBox(text), i+1, 0)
 
         layout.addWidget(QLabel('Value'), 0, 1)
-        field_values = ['08', '00', '6861', '809e', '0f00']
+        field_values = [self.type, '00', '6861', '809e', '0f00']
         for i, text in enumerate(field_values):
             layout.addWidget(QLineEdit(text), i+1, 1)
 
@@ -212,7 +230,7 @@ class FieldArea(Area):
 
 
 class FuzzingArea(Area):
-    def __init__(self):
+    def __init__(self, Controller):
         super().__init__('Fuzzing Area')
 
         layout = QGridLayout()
@@ -282,7 +300,7 @@ class PlusMinusButtons(QGroupBox):
         print("Remove")
         
 class PCAPFileArea(Area):
-    def __init__(self):
+    def __init__(self, Controller):
         super().__init__('PCAP File')
 
         layout = QHBoxLayout()
@@ -347,8 +365,12 @@ class LivePacketBehaviors(QWidget):
             print("Enabled")
             
     def adjustSize(self, size):
-        self.Controller.Queueue.ChangeQueueSize(size)
-        print(self.Controller.Queueue.QueueSizePrint())
+        # self.Controller.Queueue.ChangeQueueSize(size)
+        # print(self.Controller.Queueue.QueueSizePrint())
+        print("beep")
+        test = rdpcap("PacketSub/test.pcap")
+        Packet(test[0],1,self.Controller.pktList, False)
+
     
 
 class PacketView(QWidget):
@@ -361,12 +383,12 @@ class PacketView(QWidget):
         if top_widget:
             layout.addWidget(top_widget, 0, 0, 1, 3)
 
-        layout.addWidget(CaptureFilterArea(), 1, 0, 1, 3)
-        layout.addWidget(PacketArea(), 2, 0, 1, 3)
-        layout.addWidget(FieldArea(), 3, 0, 1, 1)
+        layout.addWidget(CaptureFilterArea(self.Controller), 1, 0, 1, 3)
+        layout.addWidget(PacketArea(self.Controller), 2, 0, 1, 3)
+        layout.addWidget(FieldArea(self.Controller), 3, 0, 1, 1)
         layout.addWidget(PlusMinusButtons(), 3, 1, 2, 1)
-        layout.addWidget(FuzzingArea(), 3, 2, 2, 1)
-        layout.addWidget(manualPacketManipulation(), 4, 0, 1, 1)
+        layout.addWidget(FuzzingArea(self.Controller), 3, 2, 2, 1)
+        layout.addWidget(manualPacketManipulation(self.Controller), 4, 0, 1, 1)
 
 class LivePacketView(PacketView):
     def __init__(self, Controller):
@@ -374,7 +396,7 @@ class LivePacketView(PacketView):
 
 class PCAPView(PacketView):
     def __init__(self, Controller):
-        super().__init__(Controller,PCAPFileArea())
+        super().__init__(Controller,PCAPFileArea(Controller))
 
 if __name__ == '__main__':
     import sys
