@@ -144,7 +144,7 @@ def restore_proxy():
     if iptable.isInterceptorOn():
         iptable.toggleInterceptor()
     if iptable.isProxyOn():
-        iptable.toggleProxy()
+        iptable.toggleProxy(None)
 
 # Runs callback at end
 atexit.register(restore_proxy)
@@ -165,7 +165,7 @@ if __name__ == '__main__':
     iptable = IPTable()
     print_iptables_state()
 
-    iptable.toggleProxy()
+    iptable.toggleProxy(None)
     print_iptables_state()
 
     iptable.toggleInterceptor()
@@ -174,5 +174,5 @@ if __name__ == '__main__':
     iptable.toggleInterceptor()
     print_iptables_state()
 
-    iptable.toggleProxy()
+    iptable.toggleProxy(None)
     print_iptables_state()
