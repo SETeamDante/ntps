@@ -1,3 +1,4 @@
+import atexit
 import subprocess
 from subprocess import DEVNULL
 from tempfile import NamedTemporaryFile
@@ -106,6 +107,21 @@ def IPTable() -> _IPTable:
     if _IPTable._instance == None:
         _IPTable._instance = _IPTable()
     return _IPTable._instance
+
+
+def restore_proxy():
+    """
+    Callback so that when NTPS exits early, proxy is disabled and iptables
+    rules are restored
+    """
+    iptable = IPTable()
+    if iptable.isInterceptorOn():
+        iptable.toggleInterceptor()
+    if iptable.isProxyOn():
+        iptable.toggleProxy()
+
+# Runs callback at end
+atexit.register(restore_proxy)
 
 
 if __name__ == '__main__':
