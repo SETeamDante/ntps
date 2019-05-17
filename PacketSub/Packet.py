@@ -62,6 +62,9 @@ class Packet:
     def RedrawPkt(self):
         self.layerList = LayerList(self.pkt)
 
+    def SetFrame(self, newValue):
+        self.Frame = newValue
+
     def GetFrame(self):
         return self.Frame
 

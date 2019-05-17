@@ -48,6 +48,18 @@ class PacketList:
                 return i
 
 
+    def UpdateFrames(self):
+        update = []
+        value = 1
+        for i in self.list:
+            if i is not None:
+                i.SetFrame(value)
+                update.append(i)
+                value += 1
+
+        self.list = update
+
+
 
 
 
