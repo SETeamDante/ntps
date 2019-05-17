@@ -27,7 +27,7 @@ class HookCollectionCatalog(Catalog):
     # Method tested
     # Using search function from Catalog super class
     def searchHookCollection(self):
-        hookCollectionName = input("Hook Collection name you want to search: ")
+        #hookCollectionName = input("Hook Collection name you want to search: ")
         super().searchCatalog(self.hookCollectionCatalog, hookCollectionName)
 
     # Method tested (Debugging tool)

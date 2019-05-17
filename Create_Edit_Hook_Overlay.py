@@ -3,21 +3,19 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QAc
 from HookSub.Hook import Hook
 from Hook_Warning_Overlay import Hook_Warning_Overlay
 from HookSub.HookCatalog import HookCatalog
+from Controller import  Controller
 
 class Hook_Overlay(QMainWindow):
 
-
-    #def __init__(self):
-        #super().__init__()
-    def __init__(self, parent, hookCatalog):
+    def __init__(self, parent, Controller):
         super(Hook_Overlay, self).__init__(parent)
-        self.title = 'Create/Edit Hook'
+        self.title = 'Create Hook'
         self.left = 10
         self.top = 10
         self.width = 400
         self.height = 160
         self.parentView = parent
-        self.catalog = hookCatalog
+        self.Controller = Controller
         self.initUI()
 
 
@@ -79,7 +77,7 @@ class Hook_Overlay(QMainWindow):
     def saveHook(self):
         newHook = Hook(self.HookName.text(), self.HookDescription.text(), self.HookPath.text())
         if newHook.checkHookProtocol():
-            self.catalog.addHook(newHook)
+            self.Controller.hookCatalog.addHook(newHook)
             self.parentView.updateView()
             self.close()
             
@@ -92,19 +90,15 @@ class Hook_Overlay(QMainWindow):
         
 class Edit_Hook_Overlay(QMainWindow):
 
-
-    #def __init__(self):
-        #super().__init__()
-    def __init__(self, parent, hookCatalog, hook, index):
+    def __init__(self, parent, Controller, index):
         super(Edit_Hook_Overlay, self).__init__(parent)
-        self.title = 'Create/Edit Hook'
+        self.title = 'Edit Hook'
         self.left = 10
         self.top = 10
         self.width = 400
         self.height = 160
         self.parentView = parent
-        self.catalog = hookCatalog
-        self.hook = hook
+        self.Controller = Controller
         self.index = index
         self.initUI()
 
@@ -123,8 +117,7 @@ class Edit_Hook_Overlay(QMainWindow):
         self.HNlabel = QLabel("Hook Name", self)
         layout.addWidget(self.HNlabel, 0, 0, 1, 1)
         self.HookName = QLineEdit(self)
-        self.HookName.setPlaceholderText("Hook Name")
-        self.HookName.setText(self.hook.name)
+        self.HookName.setText(self.Controller.hookCatalog.hookCatalog[self.index].name)
         layout.addWidget(self.HookName, 0, 1, 1, 2)
 
 
@@ -132,16 +125,14 @@ class Edit_Hook_Overlay(QMainWindow):
         self.HDlabel = QLabel("Description", self)
         layout.addWidget(self.HDlabel, 1, 0, 1, 1)
         self.HookDescription = QLineEdit(self)
-        self.HookDescription.setPlaceholderText("Hook Description")
-        self.HookDescription.setText(self.hook.description)
+        self.HookDescription.setText(self.Controller.hookCatalog.hookCatalog[self.index].description)
         layout.addWidget(self.HookDescription, 1, 1, 1, 2)
 
         # Create Hook Path textbox
         self.HPlabel = QLabel("Hook Path", self)
         layout.addWidget(self.HPlabel, 2, 0, 1, 1)
         self.HookPath = QLineEdit(self)
-        self.HookPath.setPlaceholderText("Hook Path")
-        self.HookPath.setText(self.hook.path)
+        self.HookPath.setText(self.Controller.hookCatalog.hookCatalog[self.index].path)
         layout.addWidget(self.HookPath, 2, 1, 1, 2)
 
         # Create a Browse button in the window
@@ -170,7 +161,7 @@ class Edit_Hook_Overlay(QMainWindow):
     def saveHook(self):
         newHook = Hook(self.HookName.text(), self.HookDescription.text(), self.HookPath.text())
         if newHook.checkHookProtocol():
-            self.catalog.hookCatalog[self.index] = newHook
+            self.Controller.hookCatalog.hookCatalog[self.index] = newHook
             self.parentView.updateView()
             self.close()
             
@@ -180,8 +171,3 @@ class Edit_Hook_Overlay(QMainWindow):
     
     def cancelHook(self):
         self.close()
-
-#if __name__ == '__main__':
-    #app = QApplication(sys.argv)
-    #ex = Hook_Overlay()
-    #sys.exit(app.exec_())

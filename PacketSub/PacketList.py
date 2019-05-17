@@ -7,15 +7,20 @@ class PacketList:
         self.PcapSystem = PcapSystem
         self.Queue = Queue
         self.Frame = 0
+        self.PacketArea = []
 
 
     def appendPacket(self, Packet):
         if self.Queue.OverFlow():
             self.Frame += 1
             self.Queue.add()
-            self.HookCollection.RunFunctionalHooks(Packet)
+            #self.HookCollection.RunFunctionalHooks(Packet)
             self.list.append(Packet)
+            for j in self.PacketArea:
+                j.updateList(Packet)
 
+    def SetPacketAreaRef(self, Area):
+        self.PacketArea.append(Area)
 
     def FowardPacket(self, Frame):
         for i in self.list:

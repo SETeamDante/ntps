@@ -1,7 +1,6 @@
 from importlib.machinery import SourceFileLoader
 from inspect import signature, isfunction
 
-
 class Hook:
 
     # Common class for all the hooks that are going to be in the system
@@ -16,6 +15,8 @@ class Hook:
         self.inCollection = False
         self.execNum = 0
         self.validHook = False
+        self.association = 0
+        self.index = -1
 
     # This method has been tested
     # This method is in charge of deleting the Hook object from the system
@@ -31,7 +32,7 @@ class Hook:
             print("Hook %s is enabled" % self.name)
             self.status = True
             tryHook = self.module.hook
-            self.runHook(tryHook, pkt)
+            self.runHook(tryHook)
         elif self.inCollection is True and self.validHook is False:
             print("Hook %s is not a valid Hook" % self.name)
         else:
@@ -41,7 +42,7 @@ class Hook:
         print("%s is disabled" % self.name)
         self.status = False
 
-    def runHook(self, hookMethod , pkt):
+    def runHook(self, hookMethod, pkt):
         print("%s is running" % self.name)
         if self.status is True:
             print(hookMethod(pkt))
@@ -73,6 +74,5 @@ class Hook:
 
     def RunFunctionalHooks(self, pkt):
         if self.status:
-            self.activateHook(pkt)
-
-
+            hookmdl = self.module.hook
+            self.runHook(hookmdl, pkt)

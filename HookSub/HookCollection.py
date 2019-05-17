@@ -5,19 +5,16 @@ class HookCollection:
     def __init__(self, name, description, status, execNum):
         self.name = name
         self.description = description
-
-        if status is "Enabled":
-            self.status = True
-        else:
-            self.status = False
-
+        self.status = status
         self.execNum = execNum
         self.content = []
+        self.index = -1
 
     # This method is to add the Hooks to a specific Hook Collection
     def addHookToCollection(self, hook, executionNumber):
         hook.inCollection = True
         hook.execNum = executionNumber
+        hook.association += 1
         self.content.append(hook)
         return
 
