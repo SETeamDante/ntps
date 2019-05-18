@@ -5,7 +5,7 @@ MainView.py is use to execute the code
 
 This code only works with Kali Linux
 
-In order to run it the following programs are needed
+# In order to run it the following programs are needed
 
 -pyqt5
 
@@ -14,7 +14,7 @@ In order to run it the following programs are needed
 -pypacker
 
 
-This code was made by:
+# This code was made by:
 
 -Andrew Madrid 
 
