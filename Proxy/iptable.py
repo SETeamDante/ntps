@@ -15,14 +15,14 @@ from scapy.all import raw
 def verdict_callback(ll_data, ll_proto_id, data: bytes, Controller) -> Tuple[bytes, int]:
     iptable = IPTable()
     if iptable.isInterceptorOn():
-        print(IP(data).show(dump=True))
-        h = IP(data)
-
-        Packet(h, iptable.frame, Controller, False)
+        # print(IP(data).show(dump=True))
+        Packet(IP(data), iptable.frame, Controller, False)
         iptable.frame += 1
-
-        return data, interceptor.NF_ACCEPT
+        print("Drop")
+        return data, interceptor.NF_DROP
     else:
+        print("Keep")
+
         return data, interceptor.NF_ACCEPT
 
 
@@ -56,7 +56,6 @@ class _IPTable:
             self.iptables_rules = NamedTemporaryFile(
                 suffix='iptables.rules.old'
             )
-
             # Save rules in temporary file
             subprocess.run(['iptables-save'], stdout=self.iptables_rules)
 
@@ -68,15 +67,14 @@ class _IPTable:
                     "-j", "NFQUEUE",  # Send input to NFQUEUE
                 ]
             )
-
             # Start interceptor
             self.interceptor.start(verdict_callback, queue_ids=[0], ctx=controller)
+
             self.frame = 1
 
         else:
             # Seek to beginning of temporary file to read saved rules
             self.iptables_rules.seek(0)
-
             # Restore iptables rules to previous state
             subprocess.run(['iptables-restore'], stdin=self.iptables_rules)
 
@@ -158,8 +156,8 @@ if __name__ == '__main__':
     def print_iptables_state():
         iptable = IPTable()
         print(
-            f"###### proxy = {iptable.isProxyOn()}",
-            f"iceptor = {iptable.isInterceptorOn()} ######",
+            "###### proxy = {iptable.isProxyOn()}",
+            "iceptor = {iptable.isInterceptorOn()} ######",
             sep='\t',
         )
         subprocess.run(['iptables', '-L'])
@@ -168,10 +166,8 @@ if __name__ == '__main__':
     # A simple "tester"
     iptable = IPTable()
     print_iptables_state()
-
     iptable.toggleProxy(None)
     print_iptables_state()
-
     iptable.toggleInterceptor()
     print_iptables_state()
 

@@ -26,6 +26,7 @@ class Area(QGroupBox):
         self.PacketList.append(Packet)
 
 class manualPacketManipulation(Area):
+
     def __init__(self, Controller):
         super().__init__('Field Name, Value and Display Format are editable fields')
 
@@ -111,51 +112,23 @@ class PacketArea(Area):
         self.Controller = Controller
         self.Controller.pktList.SetPacketAreaRef(self)
 
-        self.layout = QHBoxLayout()
-        self.setLayout(self.layout)
+        layout = QHBoxLayout()
+        self.setLayout(layout)
 
         tab_widget = QTabWidget()
-        self.layout.addWidget(tab_widget)
+        layout.addWidget(tab_widget)
 
         # Dissected Tab Formatting TODO: Deserves to be in own class
-        self.dissected_tab = QWidget()
-        tab_widget.addTab(self.dissected_tab, "Dissected")
-
-        self.dissected_tab_layout = QHBoxLayout()
-        self.dissected_tab.setLayout(self.dissected_tab_layout)
-
-        self.dissected_tab_tree = QTreeWidget()
-        self.dissected_tab_tree.setHeaderLabels([''])
-        self.dissected_tab_tree.setItemDelegate(DissectedTabDelegate())
-        self.dissected_tab_layout.addWidget(self.dissected_tab_tree)
+        self.dissected_tab_tree = self.SetDissectedTab(tab_widget)
 
         # Binary Tab Formatting TODO: Deserves to be in own class
-        binary_tab = QWidget()
-        tab_widget.addTab(binary_tab, "Binary")
-
-        binary_tab_layout = QHBoxLayout()
-        binary_tab_layout.setContentsMargins(5, 5, 5, 5)
-        binary_tab.setLayout(binary_tab_layout)
-
-        self.binary_tab_text_box = QTextEdit()
-        self.binary_tab_text_box.setPlainText(self.hex)
-        self.binary_tab_text_box.setReadOnly(True)
-        binary_tab_layout.addWidget(self.binary_tab_text_box)
+        self.binary_tab_text_box = self.SetBinaryTab(tab_widget)
 
         # Hex Tab Formatting TODO: Deserves to be in own class
-        hex_tab = QWidget()
-        tab_widget.addTab(hex_tab, "Hex")
+        self.hex_tab_text_box = self.SetHexTab(tab_widget)
 
-        hex_tab_layout = QHBoxLayout()
-        hex_tab_layout.setContentsMargins(5, 5, 5, 5)
-        hex_tab.setLayout(hex_tab_layout)
-
-        self.hex_tab_text_box = QTextEdit()
-        self.hex_tab_text_box.setPlainText(self.binary)
-        self.hex_tab_text_box.setReadOnly(True)
-        hex_tab_layout.addWidget(self.hex_tab_text_box)
-
-        self.dissected_tab_tree.itemClicked.connect(lambda: self.asdadsa(self.dissected_tab_tree.indexOfTopLevelItem(self.dissected_tab_tree.currentItem())))
+        # Set Event handler
+        self.dissected_tab_tree.itemClicked.connect(lambda: self.PacketItemClick(self.dissected_tab_tree.indexOfTopLevelItem(self.dissected_tab_tree.currentItem())))
         
     def updateList(self):
         pkt = self.PacketList[len(self.PacketList) - 1]
@@ -173,10 +146,9 @@ class PacketArea(Area):
             child.setCheckState(0, Qt.Unchecked)
             
     @pyqtSlot()
-    def asdadsa(self, index):
+    def PacketItemClick(self, index):
         # index.removeChild(index)
         # index = None
-        # print("asdasd")
         self.hex_tab_text_box.setPlainText(self.PacketList[index].GetHexDump())
         binary = self.PacketList[index].GetBinary()
 
@@ -184,6 +156,46 @@ class PacketArea(Area):
         # print(binary)
         # self.binary_tab_text_box.setPlainText(binary)
 
+    def SetDissectedTab(self, tab_widget):
+        dissected_tab = QWidget()
+        tab_widget.addTab(dissected_tab, "Dissected")
+
+        dissected_tab_layout = QHBoxLayout()
+        dissected_tab.setLayout(dissected_tab_layout)
+
+        dissected_tab_tree = QTreeWidget()
+        dissected_tab_tree.setHeaderLabels([''])
+        dissected_tab_tree.setItemDelegate(DissectedTabDelegate())
+        dissected_tab_layout.addWidget(dissected_tab_tree)
+        return dissected_tab_tree
+
+    def SetBinaryTab(self, tab_widget):
+        binary_tab = QWidget()
+        tab_widget.addTab(binary_tab, "Binary")
+
+        binary_tab_layout = QHBoxLayout()
+        binary_tab_layout.setContentsMargins(5, 5, 5, 5)
+        binary_tab.setLayout(binary_tab_layout)
+
+        binary_tab_text_box = QTextEdit()
+        binary_tab_text_box.setPlainText(self.hex)
+        binary_tab_text_box.setReadOnly(True)
+        binary_tab_layout.addWidget(binary_tab_text_box)
+        return binary_tab_text_box
+
+    def SetHexTab(self, tab_widget):
+        hex_tab = QWidget()
+        tab_widget.addTab(hex_tab, "Hex")
+
+        hex_tab_layout = QHBoxLayout()
+        hex_tab_layout.setContentsMargins(5, 5, 5, 5)
+        hex_tab.setLayout(hex_tab_layout)
+
+        hex_tab_text_box = QTextEdit()
+        hex_tab_text_box.setPlainText(self.binary)
+        hex_tab_text_box.setReadOnly(True)
+        hex_tab_layout.addWidget(hex_tab_text_box)
+        return hex_tab_text_box
 
 class FieldArea(Area):
     def __init__(self, Controller):

@@ -18,9 +18,9 @@ class PacketList:
             self.list.append(Packet)
             self.HookCollection.RunFunctionalHooks(Packet)
             if self.Ignore == False:
-                for j in self.PacketArea:
-                    j.updatePacketList(Packet)
-                    j.updateList()
+                for i in self.PacketArea:
+                    i.updatePacketList(Packet)
+                    i.updateList()  # Updates the PacketArea item list
             else:
                 self.Ignore = False
 
