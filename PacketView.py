@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (QCheckBox, QComboBox, QGridLayout, QGroupBox,
                              QTreeWidgetItem, QToolButton, QVBoxLayout, QWidget)
 from Proxy_Disabled_Overlay import Proxy_Dis_Overlay
 from Proxy_Enabled_Overlay import Proxy_En_Overlay
-from PCAPSub import iptable
+from Proxy import iptable
 from PacketSub.Packet import Packet
 from PacketSub.PcapClass import PcapClass
 from scapy.all import rdpcap
