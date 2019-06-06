@@ -12,21 +12,38 @@ from PacketSub.PcapClass import PcapClass
 from scapy.all import rdpcap
 
 
+
+#  TODO Integrate Queue Error
+
+#  TODO Integrate Field Area
+
+#  TODO Integrate Fuzz Area
+
+#  TODO Integrate and fix forward/drop packet
+
+#  TODO Fix Proxy Behavior pre-interception
+
+#  TODO Fix Binary Tab
+
+#  TODO Fix or Remove Filter expression
+
+
 class Area(QGroupBox):
     def __init__(self, Controller, title=None):
         super().__init__(title)
-        self.type = "asd"
+
         self.PacketList = []
         self.Controller = Controller
-    
-    def SetPacketList(self, pkt):
-        self.PacketList.append(pkt)
+
+        self.field_names = ['icmp.type', 'icmp.code', 'icmp.checksum',  # TODO This will have its own class
+                       'icmp.ident', 'icmp.seq']
+        self.field_values = ["asd", '00', '6861', '809e', '0f00']
+        self.masks = ['0', '0', '1', '0', '2']
 
     def updatePacketList(self, Packet):
         self.PacketList.append(Packet)
 
 class manualPacketManipulation(Area):
-
     def __init__(self, Controller):
         super().__init__('Field Name, Value and Display Format are editable fields')
 
@@ -34,15 +51,16 @@ class manualPacketManipulation(Area):
         self.setLayout(layout)
 
         self.saveButton = QPushButton('Save Modification')
-        self.saveButton.clicked.connect(self.saveModification)
         self.forwardButton = QPushButton('Forward')
-        self.forwardButton.clicked.connect(self.forwardPacket)
         self.dropButton = QPushButton('Drop')
-        self.dropButton.clicked.connect(self.dropPacket)
 
         layout.addWidget(self.saveButton)
         layout.addWidget(self.forwardButton)
         layout.addWidget(self.dropButton)
+
+        self.saveButton.clicked.connect(self.saveModification)
+        self.forwardButton.clicked.connect(self.forwardPacket)
+        self.dropButton.clicked.connect(self.dropPacket)
 
     def saveModification(self):
         print("Saving")
@@ -62,15 +80,17 @@ class CaptureFilterArea(Area):
 
         self.filter_text_box = QLineEdit()
         self.filter_text_box.setPlaceholderText('Filter Expression')
+
         self.applyButton = QPushButton('Apply')
-        self.applyButton.clicked.connect(self.applyFilter)
         self.clearButton = QPushButton('Clear')
-        self.clearButton.clicked.connect(self.clearFilter)
 
         layout.addWidget(QLabel('Filter:'))
         layout.addWidget(self.filter_text_box)
         layout.addWidget(self.applyButton)
         layout.addWidget(self.clearButton)
+
+        self.applyButton.clicked.connect(self.applyFilter)
+        self.clearButton.clicked.connect(self.clearFilter)
 
     def applyFilter(self):
         print("Applying")
@@ -83,13 +103,13 @@ class DissectedTabDelegate(QStyledItemDelegate):
         if not index.parent().isValid():
             QStyledItemDelegate.paint(self, painter, option, index)
         else:
-            widget = option.widget
-            style = widget.style() if widget else QApplication.style()
-            opt = QStyleOptionButton()
-            opt.rect = option.rect
-            opt.text = index.data()
-            opt.state |= QStyle.State_On if index.data(Qt.CheckStateRole) else QStyle.State_Off
-            style.drawControl(QStyle.CE_RadioButton, opt, painter, widget)
+                widget = option.widget
+                style = widget.style() if widget else QApplication.style()
+                opt = QStyleOptionButton()
+                opt.rect = option.rect
+                opt.text = index.data()
+                opt.state |= QStyle.State_On if index.data(Qt.CheckStateRole) else QStyle.State_Off
+                style.drawControl(QStyle.CE_RadioButton, opt, painter, widget)
 
     def editorEvent(self, event, model, option, index):
         value = QStyledItemDelegate.editorEvent(self, event, model, option, index)
@@ -103,12 +123,13 @@ class DissectedTabDelegate(QStyledItemDelegate):
                             model.setData(ix, Qt.Unchecked, Qt.CheckStateRole)
         return value
 
-
 class PacketArea(Area):
     def __init__(self, Controller):
         super().__init__('Packet Area')
+
         self.hex = None
         self.binary = None
+
         self.Controller = Controller
         self.Controller.pktList.SetPacketAreaRef(self)
 
@@ -128,23 +149,24 @@ class PacketArea(Area):
         self.hex_tab_text_box = self.SetHexTab(tab_widget)
 
         # Set Event handler
-        self.dissected_tab_tree.itemClicked.connect(lambda: self.PacketItemClick(self.dissected_tab_tree.indexOfTopLevelItem(self.dissected_tab_tree.currentItem())))
-        
+        self.dissected_tab_tree.itemClicked.connect\
+            (lambda: self.PacketItemClick(self.dissected_tab_tree.indexOfTopLevelItem
+                                          (self.dissected_tab_tree.currentItem())))
+
     def updateList(self):
-        pkt = self.PacketList[len(self.PacketList) - 1]
-        print(pkt.GetLayerListNames())
-        parent = QTreeWidgetItem(self.dissected_tab_tree)
-        lyr = pkt.GetLayerListNames()
-        parent.setText(0, "Frame " + str(pkt.GetFrame()) + ": " + str(lyr))
-        layer = []
-        for i in lyr:
-            layer.append(i +" = " +str(pkt.GetFieldListNamesAndValues(i)))
-        for layer in layer:
+        parent = QTreeWidgetItem(self.dissected_tab_tree)  # Make a new QTreeWidgetItem
+
+        pkt = self.PacketList[len(self.PacketList) - 1]  # Get Latest Packet
+        lyr = pkt.GetLayerListNames()  # Get the layers names from "pkt"
+        parent.setText(0, "Frame " + str(pkt.GetFrame()) + ": " + str(lyr))  # Set the text for the parent
+
+        for i in lyr:  # Iterating through the layers and creates children for the parent treeWidgetItem
             child = QTreeWidgetItem(parent)
+            child.setText(0, i + " = " + str(pkt.GetFieldListNamesAndValues(i)))
+
             child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
-            child.setText(0, layer)
             child.setCheckState(0, Qt.Unchecked)
-            
+
     @pyqtSlot()
     def PacketItemClick(self, index):
         # index.removeChild(index)
@@ -161,12 +183,15 @@ class PacketArea(Area):
         tab_widget.addTab(dissected_tab, "Dissected")
 
         dissected_tab_layout = QHBoxLayout()
+
         dissected_tab.setLayout(dissected_tab_layout)
 
         dissected_tab_tree = QTreeWidget()
         dissected_tab_tree.setHeaderLabels([''])
         dissected_tab_tree.setItemDelegate(DissectedTabDelegate())
+
         dissected_tab_layout.addWidget(dissected_tab_tree)
+
         return dissected_tab_tree
 
     def SetBinaryTab(self, tab_widget):
@@ -175,12 +200,15 @@ class PacketArea(Area):
 
         binary_tab_layout = QHBoxLayout()
         binary_tab_layout.setContentsMargins(5, 5, 5, 5)
+
         binary_tab.setLayout(binary_tab_layout)
 
         binary_tab_text_box = QTextEdit()
         binary_tab_text_box.setPlainText(self.hex)
         binary_tab_text_box.setReadOnly(True)
+
         binary_tab_layout.addWidget(binary_tab_text_box)
+
         return binary_tab_text_box
 
     def SetHexTab(self, tab_widget):
@@ -189,12 +217,15 @@ class PacketArea(Area):
 
         hex_tab_layout = QHBoxLayout()
         hex_tab_layout.setContentsMargins(5, 5, 5, 5)
+
         hex_tab.setLayout(hex_tab_layout)
 
         hex_tab_text_box = QTextEdit()
         hex_tab_text_box.setPlainText(self.binary)
         hex_tab_text_box.setReadOnly(True)
+
         hex_tab_layout.addWidget(hex_tab_text_box)
+
         return hex_tab_text_box
 
 class FieldArea(Area):
@@ -205,29 +236,26 @@ class FieldArea(Area):
         self.setLayout(layout)
 
         layout.addWidget(QLabel('Field Name'), 0, 0)
-        field_names = ['icmp.type', 'icmp.code', 'icmp.checksum',
-                       'icmp.ident', 'icmp.seq']
-        for i, text in enumerate(field_names):
+        layout.addWidget(QLabel('Value'), 0, 1)
+        layout.addWidget(QLabel('Mask'), 0, 2)
+        layout.addWidget(QLabel("Display Format"), 0, 3)
+
+        display_formats = ['Binary', 'Hex', 'Dissected']
+
+        for i, text in enumerate(self.field_names):
             layout.addWidget(QCheckBox(text), i+1, 0)
 
-        layout.addWidget(QLabel('Value'), 0, 1)
-        field_values = [self.type, '00', '6861', '809e', '0f00']
-        for i, text in enumerate(field_values):
+        for i, text in enumerate(self.field_values):
             layout.addWidget(QLineEdit(text), i+1, 1)
 
-        layout.addWidget(QLabel('Mask'), 0, 2)
-        masks = ['0', '0', '1', '0', '2']
-        for i, text in enumerate(masks):
+        for i, text in enumerate(self.masks):
             layout.addWidget(QLineEdit(text), i+1, 2)
 
-        layout.addWidget(QLabel("Display Format"), 0, 3)
-        display_formats = ['Binary', 'Hex', 'Dissected']
-        for i in range(1, len(field_names)+1):
+        for i in range(1, len(self.field_names)+1):
             combo_box = QComboBox()
             combo_box.addItems(display_formats)
             combo_box.setCurrentIndex(1)
             layout.addWidget(combo_box, i, 3)
-
 
 class FuzzingArea(Area):
     def __init__(self, Controller):
@@ -237,44 +265,43 @@ class FuzzingArea(Area):
         self.setLayout(layout)
 
         layout.addWidget(QLabel('Selected Packet Name:'), 0, 0)
-        self.packet_name_text_box = QLineEdit()
-        self.packet_name_text_box.setPlaceholderText('Selected Packet Name')
-        layout.addWidget(self.packet_name_text_box, 0, 1, 1, 2)
-
         layout.addWidget(QLabel('Selected Field Name:'), 1, 0)
-        self.field_name_text_box = QLineEdit()
-        self.field_name_text_box.setPlaceholderText('Selected Field Name')
-        layout.addWidget(self.field_name_text_box, 1, 1, 1, 2)
-
         layout.addWidget(QLabel('Expected Return Type:'), 2, 0)
-        self.return_type_text_box = QLineEdit()
-        self.return_type_text_box.setPlaceholderText('Expected Return Type')
-        layout.addWidget(self.return_type_text_box, 2, 1, 1, 2)
-
         layout.addWidget(QLabel('Minimum:'), 3, 0)
-        self.minimum_text_box = QLineEdit()
-        self.minimum_text_box.setPlaceholderText('Minimum')
-        layout.addWidget(self.minimum_text_box, 3, 1, 1, 2)
-
-        self.maximum_text_box = QLineEdit()
-        self.maximum_text_box.setPlaceholderText('Maximum')
         layout.addWidget(QLabel('Maximum:'), 4, 0)
+
+        self.packet_name_text_box = QLineEdit()
+        self.field_name_text_box = QLineEdit()
+        self.return_type_text_box = QLineEdit()
+        self.minimum_text_box = QLineEdit()
+        self.maximum_text_box = QLineEdit()
+
+        self.packet_name_text_box.setPlaceholderText('Selected Packet Name')
+        self.field_name_text_box.setPlaceholderText('Selected Field Name')
+        self.return_type_text_box.setPlaceholderText('Expected Return Type')
+        self.minimum_text_box.setPlaceholderText('Minimum')
+        self.maximum_text_box.setPlaceholderText('Maximum')
+
+        layout.addWidget(self.packet_name_text_box, 0, 1, 1, 2)
+        layout.addWidget(self.field_name_text_box, 1, 1, 1, 2)
+        layout.addWidget(self.return_type_text_box, 2, 1, 1, 2)
+        layout.addWidget(self.minimum_text_box, 3, 1, 1, 2)
         layout.addWidget(self.maximum_text_box, 4, 1, 1, 2)
 
         self.fuzz_button = QPushButton('Fuzz')
-        self.fuzz_button.clicked.connect(self.fuzzField)
-        layout.addWidget(self.fuzz_button, 5, 1)
-
         self.stop_button = QPushButton('Stop')
-        self.stop_button.clicked.connect(self.stopFuzzing)
+
+        layout.addWidget(self.fuzz_button, 5, 1)
         layout.addWidget(self.stop_button, 5, 2)
-        
+
+        self.fuzz_button.clicked.connect(self.fuzzField)
+        self.stop_button.clicked.connect(self.stopFuzzing)
+
     def fuzzField(self):
         print("Fuzzing")
-        
+
     def stopFuzzing(self):
         print("Stopping")
-
 
 class PlusMinusButtons(QGroupBox):
     def __init__(self):
@@ -284,69 +311,70 @@ class PlusMinusButtons(QGroupBox):
         self.setLayout(layout)
 
         plus_button = QToolButton()
-        plus_button.setArrowType(Qt.RightArrow)
-        plus_button.clicked.connect(self.add)
-        layout.addWidget(plus_button, 0, Qt.AlignCenter)
-
         minus_button = QToolButton()
+
+        plus_button.setArrowType(Qt.RightArrow)
         minus_button.setArrowType(Qt.LeftArrow)
-        minus_button.clicked.connect(self.remove)
+
+        layout.addWidget(plus_button, 0, Qt.AlignCenter)
         layout.addWidget(minus_button, 0, Qt.AlignCenter)
-        
+
+        plus_button.clicked.connect(self.add)
+        minus_button.clicked.connect(self.remove)
+
     def add(self):
         print("Add")
-        
+
     def remove(self):
         print("Remove")
-        
+
 class PCAPFileArea(Area):
     def __init__(self, Controller):
         super().__init__('PCAP File')
+
         self.Controller = Controller
 
         layout = QHBoxLayout()
         self.setLayout(layout)
 
         self.pcap_file_text_box = QLineEdit()
-        self.pcap_file_text_box.setPlaceholderText('PCAP File Path')
         self.openButton = QPushButton('Open')
-        self.openButton.clicked.connect(self.openPCAP)
         self.cancelButton = QPushButton('Cancel')
-        self.cancelButton.clicked.connect(self.cancelPCAP)
+
+        self.pcap_file_text_box.setPlaceholderText('PCAP File Path')
 
         layout.addWidget(QLabel('PCAP File:'))
         layout.addWidget(self.pcap_file_text_box)
         layout.addWidget(self.openButton)
         layout.addWidget(self.cancelButton)
 
+        self.openButton.clicked.connect(self.openPCAP)
+        self.cancelButton.clicked.connect(self.cancelPCAP)
+
     def openPCAP(self):
-        print("Opening")
         self.pcap = PcapClass()
         self.pcap.LoadPcap(self.pcap_file_text_box.text(), self.Controller.pktList)
 
     def cancelPCAP(self):
         self.pcap_file_text_box.clear()
 
-
 class LivePacketBehaviors(QWidget):
     def __init__(self, Controller):
         super().__init__()
 
         self.Controller = Controller
+
         layout = QHBoxLayout()
         self.setLayout(layout)
 
-        self.proxy_combo_box = QComboBox()
-        self.proxy_combo_box.addItems(['Disabled', 'Enabled'])
-        self.proxy_combo_box.currentIndexChanged.connect(self.toggleProxy)
-
-        self.interception_combo_box = QComboBox()
-        self.interception_combo_box.addItems(['Disabled', 'Enabled'])
-        self.interception_combo_box.setEnabled(False)
-        self.interception_combo_box.currentIndexChanged.connect(self.toggleInterception)
-
         self.queue_text_box = QLineEdit('100')
-        self.queue_text_box.textChanged.connect(self.adjustSize)
+        self.proxy_combo_box = QComboBox()
+        self.interception_combo_box = QComboBox()
+
+        self.proxy_combo_box.addItems(['Disabled', 'Enabled'])
+        self.interception_combo_box.addItems(['Disabled', 'Enabled'])
+
+        self.interception_combo_box.setEnabled(False)
 
         layout.addWidget(QLabel('Proxy Behavior:'))
         layout.addWidget(self.proxy_combo_box)
@@ -354,36 +382,46 @@ class LivePacketBehaviors(QWidget):
         layout.addWidget(self.interception_combo_box)
         layout.addWidget(QLabel('Queue Size:'))
         layout.addWidget(self.queue_text_box)
-        
+
+        self.queue_text_box.textChanged.connect(self.adjustQueueSize)
+        self.proxy_combo_box.currentIndexChanged.connect(self.toggleProxy)
+        self.interception_combo_box.currentIndexChanged.connect(self.toggleInterception)
+
     def toggleProxy(self, i):
         ipt = iptable.IPTable()
-        if (i == 0):
+
+        if i == 0:
             if ipt.isProxyOn():
                 ipt.toggleProxy(self.Controller.pktList)
+
             ProxyDisOverlay = Proxy_Dis_Overlay()
             self.interception_combo_box.setEnabled(False)
-            
-        if (i == 1):
+
+        if i == 1:
             if not ipt.isProxyOn():
                 ipt.toggleProxy(self.Controller.pktList)
+
             self.interception_combo_box.setEnabled(True)
             ProxyEnOverlay = Proxy_En_Overlay()
-            
+
     def toggleInterception(self, i):
         ipt = iptable.IPTable()
-        if (i == 0):
+
+        if i == 0:
             if ipt.isInterceptorOn():
                 ipt.toggleInterceptor()
+
             print("Disabled")
             self.proxy_combo_box.setEnabled(True)
-            
-        if (i == 1):
+
+        if i == 1:
             if not ipt.isInterceptorOn():
                 ipt.toggleInterceptor()
+
             print("Enabled")
             self.proxy_combo_box.setEnabled(False)
-            
-    def adjustSize(self, size):
+
+    def adjustQueueSize(self, size):
         self.Controller.Queueue.ChangeQueueSize(int(size))
 
 class PacketView(QWidget):
@@ -391,18 +429,19 @@ class PacketView(QWidget):
         super().__init__()
 
         self.Controller = Controller
+
         layout = QGridLayout()
         self.setLayout(layout)
 
         if top_widget:
             layout.addWidget(top_widget, 0, 0, 1, 3)
 
+        layout.addWidget(manualPacketManipulation(self.Controller), 4, 0, 1, 1)
         layout.addWidget(CaptureFilterArea(self.Controller), 1, 0, 1, 3)
+        layout.addWidget(FuzzingArea(self.Controller), 3, 2, 2, 1)
         layout.addWidget(PacketArea(self.Controller), 2, 0, 1, 3)
         layout.addWidget(FieldArea(self.Controller), 3, 0, 1, 1)
         layout.addWidget(PlusMinusButtons(), 3, 1, 2, 1)
-        layout.addWidget(FuzzingArea(self.Controller), 3, 2, 2, 1)
-        layout.addWidget(manualPacketManipulation(self.Controller), 4, 0, 1, 1)
 
 class LivePacketView(PacketView):
     def __init__(self, Controller):
@@ -411,6 +450,7 @@ class LivePacketView(PacketView):
 class PCAPView(PacketView):
     def __init__(self, Controller):
         super().__init__(Controller,PCAPFileArea(Controller))
+
 
 if __name__ == '__main__':
     import sys
