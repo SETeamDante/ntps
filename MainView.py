@@ -1,16 +1,15 @@
+
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-from PyQt5 import  QtGui
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 import sys
 from PacketView import LivePacketView, PCAPView
-from Create_Edit_Hook_Overlay import Hook_Overlay, Edit_Hook_Overlay
-from Create_Edit_HookCollection_Overlay import HookCol_Overlay, Edit_HookCol_Overlay
+from Overlays.Create_Edit_Hook_Overlay import Hook_Overlay, Edit_Hook_Overlay
+from Overlays.Create_Edit_HookCollection_Overlay import HookCol_Overlay, Edit_HookCol_Overlay
 from HookSub.HookCatalog import HookCatalog
 from HookSub.HookCollectionCatalog import HookCollectionCatalog
 #############################################
 from Controller import  Controller
-from PacketSub.Packet import Packet
 from PacketSub.PacketList import PacketList
 from PacketSub.PcapClass import PcapClass
 from PacketSub.Queueue import Queueue

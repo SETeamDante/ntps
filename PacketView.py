@@ -4,16 +4,11 @@ from PyQt5.QtWidgets import (QCheckBox, QComboBox, QGridLayout, QGroupBox,
                              QStyle, QStyledItemDelegate, QStyleOptionButton,
                              QTabWidget, QTextEdit, QTreeWidget,
                              QTreeWidgetItem, QToolButton, QVBoxLayout, QWidget)
-from Proxy_Disabled_Overlay import Proxy_Dis_Overlay
-from Proxy_Enabled_Overlay import Proxy_En_Overlay
+from Overlays.Proxy_Disabled_Overlay import Proxy_Dis_Overlay
+from Overlays.Proxy_Enabled_Overlay import Proxy_En_Overlay
 from Proxy import iptable
-from PacketSub.Packet import Packet
 from PacketSub.PcapClass import PcapClass
-from scapy.all import rdpcap
-
-
-
-#  TODO Integrate Queue Error
+from CommunicationManager import C_manager
 
 #  TODO Integrate Field Area
 
@@ -35,16 +30,11 @@ class Area(QGroupBox):
         self.PacketList = []
         self.Controller = Controller
 
-        self.field_names = ['icmp.type', 'icmp.code', 'icmp.checksum',  # TODO This will have its own class
-                       'icmp.ident', 'icmp.seq']
-        self.field_values = ["asd", '00', '6861', '809e', '0f00']
-        self.masks = ['0', '0', '1', '0', '2']
-
     def updatePacketList(self, Packet):
         self.PacketList.append(Packet)
 
 class manualPacketManipulation(Area):
-    def __init__(self, Controller):
+    def __init__(self, Controller, c_manager):
         super().__init__('Field Name, Value and Display Format are editable fields')
 
         layout = QHBoxLayout()
@@ -72,7 +62,7 @@ class manualPacketManipulation(Area):
         print("Dropping")
 
 class CaptureFilterArea(Area):
-    def __init__(self, Controller):
+    def __init__(self, Controller, c_manager):
         super().__init__('Capture Filter')
 
         layout = QHBoxLayout()
@@ -124,7 +114,7 @@ class DissectedTabDelegate(QStyledItemDelegate):
         return value
 
 class PacketArea(Area):
-    def __init__(self, Controller):
+    def __init__(self, Controller, c_manager):
         super().__init__('Packet Area')
 
         self.hex = None
@@ -132,6 +122,10 @@ class PacketArea(Area):
 
         self.Controller = Controller
         self.Controller.pktList.SetPacketAreaRef(self)
+        self.c_manager = c_manager
+
+        self.frame = -1
+        self.layer = -1
 
         layout = QHBoxLayout()
         self.setLayout(layout)
@@ -150,8 +144,15 @@ class PacketArea(Area):
 
         # Set Event handler
         self.dissected_tab_tree.itemClicked.connect\
-            (lambda: self.PacketItemClick(self.dissected_tab_tree.indexOfTopLevelItem
-                                          (self.dissected_tab_tree.currentItem())))
+            (lambda: self.PacketItemClick
+                (
+                    (self.dissected_tab_tree.indexOfTopLevelItem(self.dissected_tab_tree.currentItem()), False)
+                if
+                    (self.dissected_tab_tree.indexOfTopLevelItem(self.dissected_tab_tree.currentItem()) != -1)
+                else
+                    (self.dissected_tab_tree.currentItem().parent().indexOfChild(self.dissected_tab_tree.currentItem()), True)
+                )
+            )
 
     def updateList(self):
         parent = QTreeWidgetItem(self.dissected_tab_tree)  # Make a new QTreeWidgetItem
@@ -163,7 +164,6 @@ class PacketArea(Area):
         for i in lyr:  # Iterating through the layers and creates children for the parent treeWidgetItem
             child = QTreeWidgetItem(parent)
             child.setText(0, i + " = " + str(pkt.GetFieldListNamesAndValues(i)))
-
             child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
             child.setCheckState(0, Qt.Unchecked)
 
@@ -171,12 +171,20 @@ class PacketArea(Area):
     def PacketItemClick(self, index):
         # index.removeChild(index)
         # index = None
-        self.hex_tab_text_box.setPlainText(self.PacketList[index].GetHexDump())
-        binary = self.PacketList[index].GetBinary()
 
-        # binary = binary.replace("/", "-")
-        # print(binary)
+        if index[1]:  # If is children
+            self.UpdateLayer(index[0])
+        else:         # If parent
+            self.UpdateFrame(index[0])
+            self.hex_tab_text_box.setPlainText(self.PacketList[index[0]].GetHexDump())
+
         # self.binary_tab_text_box.setPlainText(binary)
+
+    def UpdateFrame(self, Frame):
+        self.c_manager.UpdateFrame(Frame)
+
+    def UpdateLayer(self, Layer):
+        self.c_manager.UpdateLayerAndFieldArea(Layer, self.PacketList)
 
     def SetDissectedTab(self, tab_widget):
         dissected_tab = QWidget()
@@ -229,7 +237,7 @@ class PacketArea(Area):
         return hex_tab_text_box
 
 class FieldArea(Area):
-    def __init__(self, Controller):
+    def __init__(self, Controller, c_manager):
         super().__init__('Field Area')
 
         layout = QGridLayout()
@@ -237,28 +245,42 @@ class FieldArea(Area):
 
         layout.addWidget(QLabel('Field Name'), 0, 0)
         layout.addWidget(QLabel('Value'), 0, 1)
-        layout.addWidget(QLabel('Mask'), 0, 2)
-        layout.addWidget(QLabel("Display Format"), 0, 3)
+        # layout.addWidget(QLabel('Mask'), 0, 2)
+        # layout.addWidget(QLabel("Display Format"), 0, 3)
 
-        display_formats = ['Binary', 'Hex', 'Dissected']
+        # display_formats = ['Binary', 'Hex', 'Dissected']
+
+        self.field_names = ['', '', '', '', '', '', '', '']
+        self.field_values = ['', '', '', '', '', '', '', '']
+        # self.masks = ['', '', '', '', '']
+
+        self.FieldNames = []
+        self.FieldValues = []
+
 
         for i, text in enumerate(self.field_names):
-            layout.addWidget(QCheckBox(text), i+1, 0)
+            tmp = QCheckBox(text)
+            self.FieldNames.append(tmp)
+            layout.addWidget(tmp, i+1, 0)
 
         for i, text in enumerate(self.field_values):
-            layout.addWidget(QLineEdit(text), i+1, 1)
+            tmp = QLineEdit(text)
+            self.FieldValues.append(tmp)
+            layout.addWidget(tmp, i+1, 1)
 
-        for i, text in enumerate(self.masks):
-            layout.addWidget(QLineEdit(text), i+1, 2)
+        # for i, text in enumerate(self.masks):
+        #     layout.addWidget(QLineEdit(text), i+1, 2)
 
-        for i in range(1, len(self.field_names)+1):
-            combo_box = QComboBox()
-            combo_box.addItems(display_formats)
-            combo_box.setCurrentIndex(1)
-            layout.addWidget(combo_box, i, 3)
+        # for i in range(1, len(self.field_names)+1):
+        #     combo_box = QComboBox()
+        #     combo_box.addItems(display_formats)
+        #     combo_box.setCurrentIndex(1)
+        #     layout.addWidget(combo_box, i, 3)
+
+        c_manager.SetFieldAreaText(self.FieldNames, self.FieldValues)
 
 class FuzzingArea(Area):
-    def __init__(self, Controller):
+    def __init__(self, Controller, c_manager):
         super().__init__('Fuzzing Area')
 
         layout = QGridLayout()
@@ -394,7 +416,7 @@ class LivePacketBehaviors(QWidget):
             if ipt.isProxyOn():
                 ipt.toggleProxy(self.Controller.pktList)
 
-            ProxyDisOverlay = Proxy_Dis_Overlay()
+            Proxy_Dis_Overlay()
             self.interception_combo_box.setEnabled(False)
 
         if i == 1:
@@ -402,7 +424,7 @@ class LivePacketBehaviors(QWidget):
                 ipt.toggleProxy(self.Controller.pktList)
 
             self.interception_combo_box.setEnabled(True)
-            ProxyEnOverlay = Proxy_En_Overlay()
+            Proxy_En_Overlay()
 
     def toggleInterception(self, i):
         ipt = iptable.IPTable()
@@ -436,11 +458,14 @@ class PacketView(QWidget):
         if top_widget:
             layout.addWidget(top_widget, 0, 0, 1, 3)
 
-        layout.addWidget(manualPacketManipulation(self.Controller), 4, 0, 1, 1)
-        layout.addWidget(CaptureFilterArea(self.Controller), 1, 0, 1, 3)
-        layout.addWidget(FuzzingArea(self.Controller), 3, 2, 2, 1)
-        layout.addWidget(PacketArea(self.Controller), 2, 0, 1, 3)
-        layout.addWidget(FieldArea(self.Controller), 3, 0, 1, 1)
+        self.c_manager = C_manager(self.Controller)
+
+        layout.addWidget(manualPacketManipulation(self.Controller, self.c_manager), 4, 0, 1, 1)
+        layout.addWidget(CaptureFilterArea(self.Controller, self.c_manager), 1, 0, 1, 3)
+        layout.addWidget(FuzzingArea(self.Controller, self.c_manager), 3, 2, 2, 1)
+        layout.addWidget(FieldArea(self.Controller, self.c_manager), 3, 0, 1, 1)
+        layout.addWidget(PacketArea(self.Controller, self.c_manager), 2, 0, 1, 3)
+
         layout.addWidget(PlusMinusButtons(), 3, 1, 2, 1)
 
 class LivePacketView(PacketView):

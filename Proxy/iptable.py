@@ -18,10 +18,10 @@ def verdict_callback(ll_data, ll_proto_id, data: bytes, Controller) -> Tuple[byt
         # print(IP(data).show(dump=True))
         Packet(IP(data), iptable.frame, Controller, False)
         iptable.frame += 1
-        print("Drop")
-        return data, interceptor.NF_DROP
+        # print("Drop")
+        return data, interceptor.NF_ACCEPT
     else:
-        print("Keep")
+        # print("Keep")
 
         return data, interceptor.NF_ACCEPT
 

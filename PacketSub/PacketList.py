@@ -10,14 +10,13 @@ class PacketList:
         self.PacketArea = []
         self.Ignore = False
 
-
     def appendPacket(self, Packet):
-        if self.Queue.OverFlow():
+        if not self.Queue.OverFlow():
             self.Frame += 1
             self.Queue.add()
             self.list.append(Packet)
             self.HookCollection.RunFunctionalHooks(Packet)
-            if self.Ignore == False:
+            if not self.Ignore:  # This is for when a packet is added then hook removes it
                 for i in self.PacketArea:
                     i.updatePacketList(Packet)
                     i.updateList()  # Updates the PacketArea item list
@@ -49,7 +48,6 @@ class PacketList:
             if i.GetFrame() == Frame:
                 return i
 
-
     def UpdateFrames(self):
         update = []
         value = 1
@@ -60,7 +58,6 @@ class PacketList:
                 value += 1
 
         self.list = update
-
 
 
 

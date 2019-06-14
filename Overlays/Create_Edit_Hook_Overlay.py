@@ -1,9 +1,7 @@
-import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QAction, QLineEdit, QLabel, QFileDialog, QGridLayout
+from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QLineEdit, QLabel, QFileDialog, QGridLayout
 from HookSub.Hook import Hook
-from Hook_Warning_Overlay import Hook_Warning_Overlay
-from HookSub.HookCatalog import HookCatalog
-from Controller import  Controller
+from Overlays.Hook_Warning_Overlay import Hook_Warning_Overlay
+
 
 class Hook_Overlay(QMainWindow):
 
