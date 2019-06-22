@@ -23,6 +23,9 @@ class Packet:
     def AddtoPktList(self, PktList):
         PktList.appendPacket(self)
 
+    def GetLayerName(self, LayerIndex):
+        return self.layerList.List[LayerIndex].lyr_name
+
     def GetLayerListNames(self):
         LayerListName = []
         for i in self.layerList.List:
@@ -53,6 +56,12 @@ class Packet:
             FiledListName.append(i.fld_name +"= "+ i.val)
         return FiledListName
 
+    def GetFieldListNamesAndValuesWnumber(self, LayerIndex):
+        FiledListName = []
+        for i in self.layerList.getLayerWnumber(LayerIndex).fieldList.List:
+            FiledListName.append(i.fld_name +"= "+ i.val)
+        return FiledListName
+
     def hasLayer(self, LayerName):
         return self.layerList.hasLayer(LayerName)
 
@@ -71,6 +80,14 @@ class Packet:
         if self.hasField(LayerName, FieldName):
             exec("self.pkt["+'"'+LayerName+'"'+"]."+FieldName+" = "+ str(NewVal))
             self.RedrawPkt()
+
+    def EditFieldWnumber(self, LayerIndex, FieldName, NewVal):
+        LayerName = self.layerList.getLayerWnumber(LayerIndex).lyr_name
+        if NewVal.isdigit():
+            exec("self.pkt["+'"'+LayerName+'"'+"]."+FieldName+" = "+ str(NewVal))
+        else:
+            exec("self.pkt[" + '"' + LayerName + '"' + "]." + FieldName + " = " + "\"" + NewVal + "\"")
+        self.RedrawPkt()
 
     def RedrawPkt(self):
         self.layerList = LayerList(self.pkt)

@@ -40,6 +40,8 @@ class manualPacketManipulation(Area):
         layout = QHBoxLayout()
         self.setLayout(layout)
 
+        self.c_manager = c_manager
+
         self.saveButton = QPushButton('Save Modification')
         self.forwardButton = QPushButton('Forward')
         self.dropButton = QPushButton('Drop')
@@ -54,6 +56,7 @@ class manualPacketManipulation(Area):
 
     def saveModification(self):
         print("Saving")
+        self.c_manager.UpdatePacket()
 
     def forwardPacket(self):
         print("Forwarding")
@@ -124,9 +127,6 @@ class PacketArea(Area):
         self.Controller.pktList.SetPacketAreaRef(self)
         self.c_manager = c_manager
 
-        self.frame = -1
-        self.layer = -1
-
         layout = QHBoxLayout()
         self.setLayout(layout)
 
@@ -135,6 +135,7 @@ class PacketArea(Area):
 
         # Dissected Tab Formatting TODO: Deserves to be in own class
         self.dissected_tab_tree = self.SetDissectedTab(tab_widget)
+        self.dissected_tab_tree.setRootIsDecorated(False)
 
         # Binary Tab Formatting TODO: Deserves to be in own class
         self.binary_tab_text_box = self.SetBinaryTab(tab_widget)
@@ -176,7 +177,13 @@ class PacketArea(Area):
             self.UpdateLayer(index[0])
         else:         # If parent
             self.UpdateFrame(index[0])
-            self.hex_tab_text_box.setPlainText(self.PacketList[index[0]].GetHexDump())
+            for i in range(len(self.PacketList)):  # Collapses all items except the one being used
+                if i != index[0]:
+                    self.dissected_tab_tree.topLevelItem(i).setExpanded(False)
+                else:
+                    self.dissected_tab_tree.topLevelItem(i).setExpanded(True)
+
+            self.hex_tab_text_box.setPlainText(self.PacketList[index[0]].GetHexDump())  # Display Hex Values
 
         # self.binary_tab_text_box.setPlainText(binary)
 
@@ -185,6 +192,12 @@ class PacketArea(Area):
 
     def UpdateLayer(self, Layer):
         self.c_manager.UpdateLayerAndFieldArea(Layer, self.PacketList)
+
+    def UpdateModifiedPacket(self, Frame, Layer):
+        pkt = self.PacketList[Frame]  # Get Latest Packet
+        lyr = pkt.GetLayerName(Layer)
+        child = self.dissected_tab_tree.topLevelItem(Layer).child(Frame)
+        child.setText(0, lyr + " = " + str(pkt.GetFieldListNamesAndValuesWnumber(Layer)))
 
     def SetDissectedTab(self, tab_widget):
         dissected_tab = QWidget()
@@ -243,6 +256,8 @@ class FieldArea(Area):
         layout = QGridLayout()
         self.setLayout(layout)
 
+        self.c_manager = c_manager
+
         layout.addWidget(QLabel('Field Name'), 0, 0)
         layout.addWidget(QLabel('Value'), 0, 1)
         # layout.addWidget(QLabel('Mask'), 0, 2)
@@ -250,32 +265,22 @@ class FieldArea(Area):
 
         # display_formats = ['Binary', 'Hex', 'Dissected']
 
-        self.field_names = ['', '', '', '', '', '', '', '']
-        self.field_values = ['', '', '', '', '', '', '', '']
+        self.fields = ['', '', '', '', '', '', '', '']
         # self.masks = ['', '', '', '', '']
 
         self.FieldNames = []
         self.FieldValues = []
 
 
-        for i, text in enumerate(self.field_names):
+        for i, text in enumerate(self.fields):
             tmp = QCheckBox(text)
             self.FieldNames.append(tmp)
             layout.addWidget(tmp, i+1, 0)
 
-        for i, text in enumerate(self.field_values):
+        for i, text in enumerate(self.fields):
             tmp = QLineEdit(text)
             self.FieldValues.append(tmp)
             layout.addWidget(tmp, i+1, 1)
-
-        # for i, text in enumerate(self.masks):
-        #     layout.addWidget(QLineEdit(text), i+1, 2)
-
-        # for i in range(1, len(self.field_names)+1):
-        #     combo_box = QComboBox()
-        #     combo_box.addItems(display_formats)
-        #     combo_box.setCurrentIndex(1)
-        #     layout.addWidget(combo_box, i, 3)
 
         c_manager.SetFieldAreaText(self.FieldNames, self.FieldValues)
 
@@ -444,6 +449,7 @@ class LivePacketBehaviors(QWidget):
             self.proxy_combo_box.setEnabled(False)
 
     def adjustQueueSize(self, size):
+        print(size)
         self.Controller.Queueue.ChangeQueueSize(int(size))
 
 class PacketView(QWidget):

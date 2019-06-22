@@ -59,6 +59,15 @@ class PacketList:
 
         self.list = update
 
+    def UpdatePacketValue(self, PacketIndex, LayerIndex, FieldName, NewVal):
+        self.list[PacketIndex].EditFieldWnumber(LayerIndex, FieldName, NewVal)
+
+    def UpdateLayerListDisplay(self, Frame, Layer):
+        for i in self.PacketArea:
+            i.UpdateModifiedPacket(Frame, Layer)
+
+
+
 
 
 
