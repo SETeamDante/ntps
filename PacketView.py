@@ -63,6 +63,8 @@ class manualPacketManipulation(Area):
 
     def dropPacket(self):
         print("Dropping")
+        self.c_manager.DropPacket()
+
 
 class CaptureFilterArea(Area):
     def __init__(self, Controller, c_manager):
@@ -196,8 +198,13 @@ class PacketArea(Area):
     def UpdateModifiedPacket(self, Frame, Layer):
         pkt = self.PacketList[Frame]  # Get Latest Packet
         lyr = pkt.GetLayerName(Layer)
-        child = self.dissected_tab_tree.topLevelItem(Layer).child(Frame)
+        child = self.dissected_tab_tree.topLevelItem(Frame).child(Layer)
         child.setText(0, lyr + " = " + str(pkt.GetFieldListNamesAndValuesWnumber(Layer)))
+
+    def DropPacket(self, FrameIndex):
+        del self.PacketList[FrameIndex]
+        self.dissected_tab_tree.takeTopLevelItem(FrameIndex)
+
 
     def SetDissectedTab(self, tab_widget):
         dissected_tab = QWidget()
@@ -260,13 +267,8 @@ class FieldArea(Area):
 
         layout.addWidget(QLabel('Field Name'), 0, 0)
         layout.addWidget(QLabel('Value'), 0, 1)
-        # layout.addWidget(QLabel('Mask'), 0, 2)
-        # layout.addWidget(QLabel("Display Format"), 0, 3)
-
-        # display_formats = ['Binary', 'Hex', 'Dissected']
 
         self.fields = ['', '', '', '', '', '', '', '']
-        # self.masks = ['', '', '', '', '']
 
         self.FieldNames = []
         self.FieldValues = []

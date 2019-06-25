@@ -35,13 +35,29 @@ class PacketList:
                 self.list.remove(i)
                 self.Queue.RemoveQueue()
 
-    def DropPacket(self, Frame):
+    def DropPacketByHook(self, Frame):
         self.Ignore = True
         for i in self.list:
             if i.GetFrame() == Frame:
                 print("Packet Drop")
                 self.list.remove(i)
                 self.Queue.RemoveQueue()
+
+
+    def DropPacket(self, Frame):
+        for i in self.list:
+            if i.GetFrame() == Frame:
+                print("Packet Drop")
+                self.list.remove(i)
+                self.Queue.RemoveQueue()
+
+    def DropPacketWnumber(self, FrameIndex):
+        del self.list[FrameIndex]
+
+
+    def DropDisplayPacket(self, FrameIndex):
+        for i in self.PacketArea:
+            i.DropPacket(FrameIndex)
 
     def GetPacket(self, Frame):
         for i in self.list:

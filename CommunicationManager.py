@@ -43,3 +43,7 @@ class C_manager:
             else:
                 self.FieldNames[i].setText(field_Names[i])
                 self.FieldValues[i].setText(field_Values[i])
+
+    def DropPacket(self):
+        self.Controller.pktList.DropPacketWnumber(self.ViewFrame)
+        self.Controller.pktList.DropDisplayPacket(self.ViewFrame)
