@@ -83,10 +83,14 @@ class Packet:
 
     def EditFieldWnumber(self, LayerIndex, FieldName, NewVal):
         LayerName = self.layerList.getLayerWnumber(LayerIndex).lyr_name
-        if NewVal.isdigit():
-            exec("self.pkt["+'"'+LayerName+'"'+"]."+FieldName+" = "+ str(NewVal))
+        if isinstance(eval("self.pkt["+'"'+LayerName+'"'+"]."+FieldName), int):
+            if not NewVal.isdigit():
+                exec("self.pkt[" + '"' + LayerName + '"' + "]." + FieldName + " = int(NewVal, 16)")
+            else:
+                exec("self.pkt["+'"'+LayerName+'"'+"]."+FieldName+" = int(NewVal)")
         else:
-            exec("self.pkt[" + '"' + LayerName + '"' + "]." + FieldName + " = " + "\"" + NewVal + "\"")
+            exec("self.pkt["+'"'+LayerName+'"'+"]."+FieldName+" = str(NewVal)")
+
         self.RedrawPkt()
 
     def RedrawPkt(self):

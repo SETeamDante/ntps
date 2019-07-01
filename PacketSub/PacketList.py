@@ -26,14 +26,21 @@ class PacketList:
     def SetPacketAreaRef(self, Area):
         self.PacketArea.append(Area)
 
-    def FowardPacket(self, Frame):
+    def FowardPacket(self, FrameName):
         for i in self.list:
-            if i.GetFrame() == Frame:
+            if i.GetFrame() == FrameName:
                 if not i.GetIsPcap():
                     self.PcapSystem.AppendPacket(i)
                 # send(i)
                 self.list.remove(i)
                 self.Queue.RemoveQueue()
+
+    def FowardPacketWnumber(self, FrameIndex):
+        if not self.list[FrameIndex].GetIsPcap():
+            self.PcapSystem.AppendPacket(self.list[FrameIndex])
+        send(self.list[FrameIndex].GetPacket())
+        del self.list[FrameIndex]
+        self.Queue.RemoveQueue()
 
     def DropPacketByHook(self, Frame):
         self.Ignore = True
@@ -42,7 +49,6 @@ class PacketList:
                 print("Packet Drop")
                 self.list.remove(i)
                 self.Queue.RemoveQueue()
-
 
     def DropPacket(self, Frame):
         for i in self.list:
@@ -53,7 +59,7 @@ class PacketList:
 
     def DropPacketWnumber(self, FrameIndex):
         del self.list[FrameIndex]
-
+        self.Queue.RemoveQueue()
 
     def DropDisplayPacket(self, FrameIndex):
         for i in self.PacketArea:

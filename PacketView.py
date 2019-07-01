@@ -60,6 +60,7 @@ class manualPacketManipulation(Area):
 
     def forwardPacket(self):
         print("Forwarding")
+        self.c_manager.FowardPacket()
 
     def dropPacket(self):
         print("Dropping")

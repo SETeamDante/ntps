@@ -24,7 +24,7 @@ class C_manager:
 
     def UpdatePacket(self):
         for i in range(len(self.FieldNames)):
-            if self.FieldNames[i] != '':
+            if self.FieldNames[i].text() != '':
                 self.Controller.pktList.UpdatePacketValue(self.ViewFrame, self.LayerNumber, self.FieldNames[i].text(), self.FieldValues[i].text())
         self.Controller.pktList.UpdateLayerListDisplay(self.ViewFrame, self.LayerNumber)
 
@@ -47,3 +47,8 @@ class C_manager:
     def DropPacket(self):
         self.Controller.pktList.DropPacketWnumber(self.ViewFrame)
         self.Controller.pktList.DropDisplayPacket(self.ViewFrame)
+
+    def FowardPacket(self):
+        self.Controller.pktList.FowardPacketWnumber(self.ViewFrame)
+        self.Controller.pktList.DropDisplayPacket(self.ViewFrame)
+
