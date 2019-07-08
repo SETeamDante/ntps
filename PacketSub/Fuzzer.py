@@ -12,7 +12,7 @@ class Fuzzer:
         self.on = False
 
     def SelectPkt(self, pkt, Lyr, fld):
-        self.fuzzertThreath = threading.Thread(target=self.FuzzPacket, args=(pkt, Lyr,fld))
+        self.fuzzertThreath = threading.Thread(target=self.FuzzPacket, args=(pkt, Lyr, fld))
 
     def StartFuzzer(self):
         self.on = True
@@ -20,14 +20,22 @@ class Fuzzer:
 
     def FuzzPacket(self, pkt, Lyr, fld):
         while(self.on):
-            print("boop")
             FuzzDumy = eval("fuzz("+Lyr+"())")
-            val = eval("FuzzDumy["+Lyr+"]."+fld)
             newPkt = copy.copy(pkt)
-            newPkt.EditField(Lyr, fld, val)
-            print(newPkt.GetFieldListNamesAndValues(Lyr))
-            newPkt.AddtoPktList(self.PktList)
-            time.sleep(1)
+            if fld:
+                for i in fld:
+                    val = eval("FuzzDumy[" + Lyr + "]." + i)
+                    newPkt.EditField(Lyr, i, val)
+                newPkt.Frame = self.PktList.list[len(self.PktList.list)-1].Frame + 1
+                newPkt.AddtoPktList(self.PktList)
+                time.sleep(1)
+            else:
+                for i in newPkt.GetFieldListNames(Lyr):
+                    val = eval("FuzzDumy[" + Lyr + "]." + i)
+                    newPkt.EditField(Lyr, i, val)
+                newPkt.Frame = self.PktList.list[len(self.PktList.list)-1].Frame + 1
+                newPkt.AddtoPktList(self.PktList)
+                time.sleep(1)
 
     def StopFuzzer(self):
         self.on = False

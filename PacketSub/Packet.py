@@ -77,8 +77,11 @@ class Packet:
             return layer.fieldList.GetField(FieldName).val
 
     def EditField(self, LayerName, FieldName, NewVal):
-        if self.hasField(LayerName, FieldName):
-            exec("self.pkt["+'"'+LayerName+'"'+"]."+FieldName+" = "+ str(NewVal))
+        if NewVal is not None:
+            if isinstance(eval("self.pkt[" + '"' + LayerName + '"' + "]." + FieldName), int):
+                exec("self.pkt[" + '"' + LayerName + '"' + "]." + FieldName + " = int(NewVal)")
+            else:
+                exec("self.pkt[" + '"' + LayerName + '"' + "]." + FieldName + " = NewVal")
             self.RedrawPkt()
 
     def EditFieldWnumber(self, LayerIndex, FieldName, NewVal):

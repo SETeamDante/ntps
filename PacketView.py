@@ -191,7 +191,7 @@ class PacketArea(Area):
         # self.binary_tab_text_box.setPlainText(binary)
 
     def UpdateFrame(self, Frame):
-        self.c_manager.UpdateFrame(Frame)
+        self.c_manager.UpdateFrame(Frame, self.PacketList[Frame].GetFrame())
 
     def UpdateLayer(self, Layer):
         self.c_manager.UpdateLayerAndFieldArea(Layer, self.PacketList)
@@ -294,29 +294,33 @@ class FuzzingArea(Area):
         layout = QGridLayout()
         self.setLayout(layout)
 
-        layout.addWidget(QLabel('Selected Packet Name:'), 0, 0)
-        layout.addWidget(QLabel('Selected Field Name:'), 1, 0)
-        layout.addWidget(QLabel('Expected Return Type:'), 2, 0)
-        layout.addWidget(QLabel('Minimum:'), 3, 0)
-        layout.addWidget(QLabel('Maximum:'), 4, 0)
+        self.c_manager = c_manager
+
+        FuzzerValues = []
+
+        layout.addWidget(QLabel('Selected Packet:'), 0, 0)
+        layout.addWidget(QLabel('Selected Fields:'), 1, 0)
+
 
         self.packet_name_text_box = QLineEdit()
+        self.packet_name_text_box.setReadOnly(True)
         self.field_name_text_box = QLineEdit()
-        self.return_type_text_box = QLineEdit()
-        self.minimum_text_box = QLineEdit()
-        self.maximum_text_box = QLineEdit()
+        self.field_name_text_box.setReadOnly(True)
 
-        self.packet_name_text_box.setPlaceholderText('Selected Packet Name')
-        self.field_name_text_box.setPlaceholderText('Selected Field Name')
-        self.return_type_text_box.setPlaceholderText('Expected Return Type')
-        self.minimum_text_box.setPlaceholderText('Minimum')
-        self.maximum_text_box.setPlaceholderText('Maximum')
+
+        self.packet_name_text_box.setPlaceholderText('')
+        self.field_name_text_box.setPlaceholderText('')
+
+
+        FuzzerValues.append(self.packet_name_text_box)
+        FuzzerValues.append(self.field_name_text_box)
+
+
+        c_manager.SetFuzzerAreaText(FuzzerValues)
 
         layout.addWidget(self.packet_name_text_box, 0, 1, 1, 2)
         layout.addWidget(self.field_name_text_box, 1, 1, 1, 2)
-        layout.addWidget(self.return_type_text_box, 2, 1, 1, 2)
-        layout.addWidget(self.minimum_text_box, 3, 1, 1, 2)
-        layout.addWidget(self.maximum_text_box, 4, 1, 1, 2)
+
 
         self.fuzz_button = QPushButton('Fuzz')
         self.stop_button = QPushButton('Stop')
@@ -329,16 +333,19 @@ class FuzzingArea(Area):
 
     def fuzzField(self):
         print("Fuzzing")
+        self.c_manager.StartFuzzing()
 
     def stopFuzzing(self):
         print("Stopping")
+        self.c_manager.StopFuzzing()
 
 class PlusMinusButtons(QGroupBox):
-    def __init__(self):
+    def __init__(self, c_manager):
         super().__init__('')
-
         layout = QVBoxLayout()
         self.setLayout(layout)
+
+        self.c_manager = c_manager
 
         plus_button = QToolButton()
         minus_button = QToolButton()
@@ -354,9 +361,11 @@ class PlusMinusButtons(QGroupBox):
 
     def add(self):
         print("Add")
+        self.c_manager.UpdateFuzzerFieldText()
 
     def remove(self):
         print("Remove")
+        self.c_manager.RemoveFuzzerFieldText()
 
 class PCAPFileArea(Area):
     def __init__(self, Controller):
@@ -452,7 +461,6 @@ class LivePacketBehaviors(QWidget):
             self.proxy_combo_box.setEnabled(False)
 
     def adjustQueueSize(self, size):
-        print(size)
         self.Controller.Queueue.ChangeQueueSize(int(size))
 
 class PacketView(QWidget):
@@ -474,8 +482,7 @@ class PacketView(QWidget):
         layout.addWidget(FuzzingArea(self.Controller, self.c_manager), 3, 2, 2, 1)
         layout.addWidget(FieldArea(self.Controller, self.c_manager), 3, 0, 1, 1)
         layout.addWidget(PacketArea(self.Controller, self.c_manager), 2, 0, 1, 3)
-
-        layout.addWidget(PlusMinusButtons(), 3, 1, 2, 1)
+        layout.addWidget(PlusMinusButtons(self.c_manager), 3, 1, 2, 1)
 
 class LivePacketView(PacketView):
     def __init__(self, Controller):

@@ -6,18 +6,25 @@ class C_manager:
         self.Controller = Controller
         self.FieldNames = []
         self.FieldValues = []
+        self.FuzzerValues = []
         self.ViewFrame = None
         self.LayerNumber = None
+        self.PacketFrame = None
+        self.LayerToFuzz = None
 
     def SetFieldAreaText(self, FieldNames, FieldValues):
         self.FieldNames = FieldNames
         self.FieldValues = FieldValues
 
+    def SetFuzzerAreaText(self, FuzzerValues):
+        self.FuzzerValues = FuzzerValues
+
     def UpdateFieldValues(self, FieldValues):
         self.FieldValues = FieldValues
 
-    def UpdateFrame(self, ViewFrame):
+    def UpdateFrame(self, ViewFrame, PacketFrame):
         self.ViewFrame = ViewFrame
+        self.PacketFrame = PacketFrame
         for i in range(len(self.FieldNames)):
             self.FieldNames[i].setText('')
             self.FieldValues[i].setText('')
@@ -51,4 +58,36 @@ class C_manager:
     def FowardPacket(self):
         self.Controller.pktList.FowardPacketWnumber(self.ViewFrame)
         self.Controller.pktList.DropDisplayPacket(self.ViewFrame)
+
+    def UpdateFuzzerFieldText(self):
+        self.LayerToFuzz = self.LayerNumber
+        SelectedFields = ""
+        for i in range(len(self.FieldNames)):
+            if self.FieldNames[i].isChecked():
+                if SelectedFields == "":
+                    SelectedFields = self.FieldNames[i].text()
+                else:
+                    SelectedFields = SelectedFields + ", " + self.FieldNames[i].text()
+        self.FuzzerValues[1].setText(SelectedFields)
+        self.FuzzerValues[0].setText("Frame:" + str(self.PacketFrame))
+
+    def RemoveFuzzerFieldText(self):
+        self.FuzzerValues[0].setText("")
+        self.FuzzerValues[1].setText("")
+
+    def StartFuzzing(self):
+        if self.FuzzerValues[0].text() != "":
+            Fuzziner_Field = []
+            for i in self.FieldNames:
+                if i.isChecked():
+                    Fuzziner_Field.append(i.text())
+            Frame = self.FuzzerValues[0].text().split(":")[1]
+            Fuzz_pkt = self.Controller.pktList.GetPacket(int(Frame))
+            lyr = Fuzz_pkt.GetLayerName(self.LayerToFuzz)
+            self.Controller.Fuzzer.SelectPkt(Fuzz_pkt, lyr, Fuzziner_Field)
+            self.Controller.Fuzzer.StartFuzzer()
+
+    def StopFuzzing(self):
+        self.Controller.Fuzzer.StopFuzzer()
+
 

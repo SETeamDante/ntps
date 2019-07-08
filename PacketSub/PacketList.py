@@ -46,14 +46,12 @@ class PacketList:
         self.Ignore = True
         for i in self.list:
             if i.GetFrame() == Frame:
-                print("Packet Drop")
                 self.list.remove(i)
                 self.Queue.RemoveQueue()
 
     def DropPacket(self, Frame):
         for i in self.list:
             if i.GetFrame() == Frame:
-                print("Packet Drop")
                 self.list.remove(i)
                 self.Queue.RemoveQueue()
 
